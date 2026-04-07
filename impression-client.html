@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Impression — L'Agriculture</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --black: #111110; --grey: #6b6b67; --light: #f5f4f0; --border: #e2e1dc; --accent: #2d5a27; --white: #ffffff; }
+    body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--light); color: var(--black); min-height: 100vh; }
+    header { padding: 3rem 2rem 2rem; text-align: center; border-bottom: 1px solid var(--border); background: var(--white); }
+    .site-label { font-weight: 500; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); margin-bottom: 0.6rem; }
+    header h1 { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.1; }
+    header p { margin-top: 0.8rem; font-size: 0.95rem; color: var(--grey); max-width: 380px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+    .tarifs { display: flex; justify-content: center; gap: 1px; margin: 2.5rem auto 0; max-width: 360px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .tarif { flex: 1; background: var(--white); padding: 1rem 1.2rem; text-align: center; }
+    .tarif-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--grey); margin-bottom: 0.3rem; }
+    .tarif-price { font-family: 'DM Serif Display', serif; font-size: 1.4rem; }
+    .tarif-unit { font-size: 0.7rem; color: var(--grey); margin-top: 0.1rem; }
+    main { max-width: 520px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    .steps { display: flex; flex-direction: column; margin-bottom: 2.5rem; }
+    .step { display: flex; align-items: flex-start; gap: 1rem; padding: 1.2rem 0; border-bottom: 1px solid var(--border); opacity: 0; transform: translateY(12px); animation: fadeUp 0.4s ease forwards; }
+    .step:nth-child(1) { animation-delay: 0.1s; } .step:nth-child(2) { animation-delay: 0.2s; } .step:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    .step-num { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--accent); min-width: 1.5rem; padding-top: 0.05rem; }
+    .step-text strong { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.15rem; }
+    .step-text span { font-size: 0.82rem; color: var(--grey); line-height: 1.5; }
+    .form-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 2rem 1.8rem; opacity: 0; animation: fadeUp 0.4s ease 0.4s forwards; }
+    .form-group { margin-bottom: 1.4rem; }
+    label { display: block; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey); margin-bottom: 0.5rem; }
+    input[type="text"], select { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 5px; background: var(--light); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 300; color: var(--black); outline: none; transition: border-color 0.2s; appearance: none; }
+    input[type="text"]:focus, select:focus { border-color: var(--accent); background: var(--white); }
+    .file-drop { width: 100%; border: 1.5px dashed var(--border); border-radius: 5px; background: var(--light); padding: 2rem 1rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative; }
+    .file-drop:hover, .file-drop.dragover { border-color: var(--accent); background: #f0f5ef; }
+    .file-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .file-icon { font-size: 1.6rem; margin-bottom: 0.5rem; display: block; }
+    .file-drop-text { font-size: 0.85rem; color: var(--grey); line-height: 1.5; }
+    .file-drop-text strong { color: var(--black); font-weight: 500; }
+    .formats { margin-top: 0.5rem; font-size: 0.72rem; color: var(--grey); }
+
+    /* File list */
+    .file-list { margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    .file-item { display: flex; align-items: center; justify-content: space-between; background: var(--light); border: 1px solid var(--border); border-radius: 5px; padding: 0.5rem 0.8rem; font-size: 0.8rem; }
+    .file-item-name { color: var(--black); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
+    .file-item-pages { color: var(--grey); font-size: 0.72rem; }
+    .file-item-remove { color: var(--grey); cursor: pointer; font-size: 1rem; padding: 0 0.2rem; flex-shrink: 0; }
+    .file-item-remove:hover { color: #c0392b; }
+
+    /* Page summary */
+    .page-summary { margin-top: 1rem; padding: 0.8rem 1rem; background: #eef4ed; border-radius: 5px; font-size: 0.85rem; color: var(--accent); display: none; }
+    .page-summary strong { font-weight: 500; }
+
+    .submit-btn { width: 100%; padding: 0.9rem; background: var(--black); color: var(--white); border: none; border-radius: 5px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 0.5rem; }
+    .submit-btn:hover { background: var(--accent); }
+    .submit-btn:active { transform: scale(0.99); }
+    .submit-btn:disabled { background: var(--border); color: var(--grey); cursor: not-allowed; }
+    .payment-notice { margin-top: 1.8rem; padding: 1rem 1.2rem; background: #fffbf0; border: 1.5px solid #e8d48a; border-radius: 6px; font-size: 0.85rem; color: #6b5a1a; line-height: 1.6; text-align: center; opacity: 0; animation: fadeUp 0.4s ease 0.5s forwards; }
+    .payment-notice strong { color: #3d3000; font-weight: 500; }
+    .note { margin-top: 1.8rem; padding: 1rem 1.2rem; background: var(--white); border: 1px solid var(--border); border-radius: 6px; font-size: 0.8rem; color: var(--grey); line-height: 1.6; opacity: 0; animation: fadeUp 0.4s ease 0.5s forwards; }
+    .note strong { color: var(--black); font-weight: 500; }
+    .success-screen { display: none; text-align: center; padding: 3rem 1rem; }
+    .success-screen.show { display: block; animation: fadeUp 0.4s ease forwards; }
+    .checkmark { width: 56px; height: 56px; border-radius: 50%; background: #eef4ed; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.4rem; }
+    .success-screen h2 { font-family: 'DM Serif Display', serif; font-size: 1.6rem; font-weight: 400; margin-bottom: 0.6rem; }
+    .success-screen p { font-size: 0.9rem; color: var(--grey); line-height: 1.6; }
+    footer { text-align: center; padding: 1.5rem; font-size: 0.72rem; color: var(--border); letter-spacing: 0.1em; text-transform: uppercase; }
+    .select-wrap { position: relative; }
+    .select-wrap::after { content: '↓'; position: absolute; right: 0.9rem; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 0.8rem; color: var(--grey); }
+    .uploading { font-size: 0.85rem; color: var(--grey); text-align: center; margin-top: 0.8rem; display: none; }
+    .progress-bar { width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 0.8rem; display: none; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
+  </style>
+</head>
+<body>
+
+<header>
+  <p class="site-label">L'Agriculture</p>
+  <h1>Service d'impression</h1>
+  <p>Déposez vos documents, nous les imprimons pour vous.</p>
+  <div class="tarifs">
+    <div class="tarif">
+      <div class="tarif-label">Noir &amp; blanc</div>
+      <div class="tarif-price">0,30 €</div>
+      <div class="tarif-unit">par page</div>
+    </div>
+    <div class="tarif">
+      <div class="tarif-label">Couleur</div>
+      <div class="tarif-price">0,80 €</div>
+      <div class="tarif-unit">par page</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">1</span>
+      <div class="step-text"><strong>Envoyez vos fichiers</strong><span>PDF ou images, depuis votre téléphone ou ordinateur.</span></div>
+    </div>
+    <div class="step">
+      <span class="step-num">2</span>
+      <div class="step-text"><strong>Réglez au comptoir</strong><span>Le prix est calculé automatiquement selon le nombre de pages.</span></div>
+    </div>
+    <div class="step">
+      <span class="step-num">3</span>
+      <div class="step-text"><strong>Récupérez vos documents</strong><span>L'impression est lancée après encaissement.</span></div>
+    </div>
+  </div>
+
+  <div class="form-card" id="formCard">
+    <div class="form-group">
+      <label for="prenom">Votre prénom</label>
+      <input type="text" id="prenom" placeholder="Ex : Marie" autocomplete="given-name" />
+    </div>
+    <div class="form-group">
+      <label for="couleur">Type d'impression</label>
+      <div class="select-wrap">
+        <select id="couleur">
+          <option value="nb">Noir &amp; blanc — 0,30 € / page</option>
+          <option value="couleur">Couleur — 0,80 € / page</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Vos documents</label>
+      <div class="file-drop" id="fileDrop">
+        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" multiple />
+        <span class="file-icon">📄</span>
+        <div class="file-drop-text"><strong>Appuyez pour choisir un ou plusieurs fichiers</strong><br>ou glissez-déposez ici</div>
+      </div>
+      <div class="formats">Formats acceptés : PDF, JPG, PNG — sélection multiple possible</div>
+      <div class="file-list" id="fileList"></div>
+      <div class="page-summary" id="pageSummary"></div>
+    </div>
+    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="uploading" id="uploadingMsg">⏳ Envoi en cours...</div>
+    <button class="submit-btn" id="submitBtn" disabled>Envoyer ma demande</button>
+  </div>
+
+  <div class="success-screen" id="successScreen">
+    <div class="checkmark">✓</div>
+    <h2>Demande envoyée !</h2>
+    <p>Passez au comptoir pour régler.<br>L'impression sera lancée après encaissement.</p>
+  </div>
+
+  <div class="payment-notice">
+    💳 Le paiement par carte bancaire est accepté <strong>à partir de 5 €</strong> uniquement.<br>
+    En dessous, le règlement se fait <strong>en espèces</strong>.
+  </div>
+
+  <div class="note">
+    <strong>Confidentialité</strong> — Vos fichiers sont utilisés uniquement pour l'impression et ne sont pas conservés. Seuls les formats PDF et image sont acceptés.
+  </div>
+</main>
+
+<footer>L'Agriculture &nbsp;·&nbsp; Service impression</footer>
+
+<!-- PDF.js pour compter les pages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAQiTjxoiZ9z3hUZXQcvOcnvgZs88qhkPs",
+    authDomain: "agriculture-impression.firebaseapp.com",
+    projectId: "agriculture-impression",
+    storageBucket: "agriculture-impression.firebasestorage.app",
+    messagingSenderId: "324321609420",
+    appId: "1:324321609420:web:2e6508afbc1b5774642469"
+  };
+
+  const IMGBB_API_KEY = "cd2eb3a46f81b6a1f5f241c97d21a0c3";
+  const PRIX = { nb: 0.30, couleur: 0.80 };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const fileInput    = document.getElementById('fileInput');
+  const fileDrop     = document.getElementById('fileDrop');
+  const fileList     = document.getElementById('fileList');
+  const pageSummary  = document.getElementById('pageSummary');
+  const submitBtn    = document.getElementById('submitBtn');
+  const formCard     = document.getElementById('formCard');
+  const successScreen= document.getElementById('successScreen');
+  const uploadingMsg = document.getElementById('uploadingMsg');
+  const progressBar  = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+
+  let selectedFiles = []; // { file, pages }
+
+  // ── Compter les pages d'un PDF ──
+  async function countPdfPages(file) {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      return pdf.numPages;
+    } catch(e) {
+      return 1; // fallback
+    }
+  }
+
+  // ── Ajouter des fichiers ──
+  async function addFiles(newFiles) {
+    for (const file of newFiles) {
+      if (selectedFiles.find(f => f.file.name === file.name && f.file.size === file.size)) continue;
+      const ext = file.name.split('.').pop().toLowerCase();
+      let pages = 1;
+      if (ext === 'pdf') {
+        pages = await countPdfPages(file);
+      }
+      selectedFiles.push({ file, pages });
+    }
+    renderFileList();
+  }
+
+  // ── Afficher la liste ──
+  function renderFileList() {
+    fileList.innerHTML = '';
+    let totalPages = 0;
+
+    selectedFiles.forEach((item, idx) => {
+      totalPages += item.pages;
+      const div = document.createElement('div');
+      div.className = 'file-item';
+      div.innerHTML = `
+        <span class="file-item-name">📎 ${item.file.name}</span>
+        <span class="file-item-pages">${item.pages} page${item.pages > 1 ? 's' : ''}</span>
+        <span class="file-item-remove" data-idx="${idx}">✕</span>
+      `;
+      fileList.appendChild(div);
+    });
+
+    // Supprimer un fichier
+    fileList.querySelectorAll('.file-item-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedFiles.splice(parseInt(btn.dataset.idx), 1);
+        renderFileList();
+      });
+    });
+
+    // Résumé pages + prix
+    if (selectedFiles.length > 0) {
+      const type = document.getElementById('couleur').value;
+      const prix = (totalPages * PRIX[type]).toFixed(2);
+      pageSummary.style.display = 'block';
+      pageSummary.innerHTML = `📄 <strong>${totalPages} page${totalPages > 1 ? 's' : ''}</strong> au total · Prix estimé : <strong>${prix} €</strong>`;
+      submitBtn.disabled = false;
+    } else {
+      pageSummary.style.display = 'none';
+      submitBtn.disabled = true;
+    }
+  }
+
+  // Mettre à jour le prix si le type change
+  document.getElementById('couleur').addEventListener('change', renderFileList);
+
+  // ── Événements fichiers ──
+  fileInput.addEventListener('change', () => addFiles(Array.from(fileInput.files)));
+  fileDrop.addEventListener('dragover', (e) => { e.preventDefault(); fileDrop.classList.add('dragover'); });
+  fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
+  fileDrop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    fileDrop.classList.remove('dragover');
+    addFiles(Array.from(e.dataTransfer.files));
+  });
+
+  document.getElementById('prenom').addEventListener('input', function() { this.style.borderColor = ''; });
+
+  // ── Upload ImgBB ──
+  function uploadToImgBB(file, onProgress) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result.split(',')[1];
+        const formData = new FormData();
+        formData.append('image', base64);
+        formData.append('name', file.name);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY);
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total);
+        };
+        xhr.onload = () => {
+          try {
+            const res = JSON.parse(xhr.responseText);
+            if (xhr.status === 200) resolve(res.data.url);
+            else reject(new Error(res.error ? res.error.message : 'Erreur upload'));
+          } catch(e) { reject(e); }
+        };
+        xhr.onerror = () => reject(new Error('Erreur réseau'));
+        xhr.send(formData);
+      };
+      reader.onerror = () => reject(new Error('Erreur lecture fichier'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ── Envoi ──
+  submitBtn.addEventListener('click', async () => {
+    const prenom = document.getElementById('prenom').value.trim();
+    if (!prenom) {
+      document.getElementById('prenom').focus();
+      document.getElementById('prenom').style.borderColor = '#c0392b';
+      return;
+    }
+    if (selectedFiles.length === 0) return;
+
+    submitBtn.disabled = true;
+    uploadingMsg.style.display = 'block';
+    progressBar.style.display = 'block';
+    progressFill.style.width = '0%';
+
+    try {
+      const type = document.getElementById('couleur').value;
+      const totalPages = selectedFiles.reduce((sum, f) => sum + f.pages, 0);
+      const prix = (totalPages * PRIX[type]).toFixed(2);
+
+      // Upload tous les fichiers
+      const uploads = [];
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const item = selectedFiles[i];
+        uploadingMsg.textContent = `⏳ Envoi ${i + 1}/${selectedFiles.length} — ${item.file.name}`;
+        const url = await uploadToImgBB(item.file, (p) => {
+          const global = ((i + p) / selectedFiles.length) * 100;
+          progressFill.style.width = global + '%';
+        });
+        uploads.push({ fileName: item.file.name, fileURL: url, pages: item.pages });
+      }
+
+      progressFill.style.width = '100%';
+
+      // Enregistrement Firestore
+      await addDoc(collection(db, "impressions"), {
+        prenom,
+        type,
+        fichiers: uploads,
+        totalPages,
+        prix: parseFloat(prix),
+        statut: "en_attente",
+        createdAt: serverTimestamp()
+      });
+
+      formCard.style.display = 'none';
+      successScreen.classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (err) {
+      uploadingMsg.style.display = 'none';
+      progressBar.style.display = 'none';
+      submitBtn.disabled = false;
+      alert("Une erreur s'est produite. Veuillez réessayer.");
+      console.error(err);
+    }
+  });
+</script>
+</body>
+</html>
