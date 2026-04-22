@@ -332,7 +332,7 @@
         try {
           const res = JSON.parse(xhr.responseText);
           if (xhr.status === 200 && res.file) {
-            const url = 'https://ucarecdn.com/' + res.file + '/' + encodeURIComponent(file.name);
+            const url = 'https://22i7gudqk3.ucarecd.net/' + res.file + '/' + file.name;
             resolve({ url: url, deleteURL: null, ucareId: res.file });
           } else reject(new Error('Erreur upload Uploadcare'));
         } catch(e) { reject(e); }

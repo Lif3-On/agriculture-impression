@@ -354,7 +354,7 @@
 
     const fichiers = job.fichiers || (job.fileURL ? [{ fileName: job.fileName, fileURL: job.fileURL, pages: job.totalPages || 1 }] : []);
     const totalPages = job.totalPages || fichiers.reduce((s, f) => s + (f.pages || 1), 0);
-    const prix = job.prix || (totalPages * (job.type === 'couleur' ? 0.80 : 0.30));
+    const prix = job.prix || (totalPages * (job.type === 'couleur' ? 0.90 : 0.40));
     const deleted = job.files_deleted;
 
     const filesHTML = fichiers.map(f => `
