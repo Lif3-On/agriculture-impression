@@ -81,7 +81,9 @@
     .btn-print:active { transform: scale(0.98); }
     .btn-refuse { padding: 0.85rem 1rem; background: transparent; color: var(--red); border: 1px solid #f0d0cc; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
     .btn-refuse:hover { background: #fdf0ee; }
-    .job-done { text-align: center; padding: 0.6rem; font-size: 0.8rem; color: var(--grey); }
+    .job-done { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.2rem; font-size: 0.8rem; color: var(--grey); }
+    .btn-reprint { padding: 0.4rem 0.8rem; background: transparent; color: var(--accent); border: 1px solid #c8dfc5; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+    .btn-reprint:hover { background: #eef4ed; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
     .modal-overlay.show { opacity: 1; pointer-events: all; }
     .modal { background: var(--white); border-radius: 12px; padding: 2rem 1.5rem; max-width: 340px; width: 100%; text-align: center; }
@@ -385,7 +387,10 @@
           <button class="btn-print" onclick="handlePrint('${job.id}')">✓ Encaissé — Lancer l'impression</button>
           <button class="btn-refuse" onclick="handleRefuse('${job.id}')">✕</button>
         </div>` : `
-        <div class="job-done">${job.statut === 'imprime' ? '✓ Imprimé' : '✕ Refusé'}</div>`}
+        <div class="job-done">
+          <span>${job.statut === 'imprime' ? '✓ Imprimé' : '✕ Refusé'}</span>
+          ${job.statut === 'imprime' ? `<button class="btn-reprint" onclick="handleReprint('${job.id}')">↺ Réimprimer</button>` : ''}
+        </div>`}
       </div>
     `;
     return card;
@@ -403,6 +408,18 @@
     try {
       await updateDoc(doc(db, "impressions", id), { statut: "refuse", treatedAt: serverTimestamp() });
       showToast('Demande refusée');
+    } catch(e) { console.error(e); }
+  };
+
+  window.handleReprint = async (id) => {
+    if (!confirm('Relancer l\'impression de cette commande ?')) return;
+    try {
+      await updateDoc(doc(db, "impressions", id), {
+        statut: "imprime",
+        printed_locally: false,
+        treatedAt: serverTimestamp()
+      });
+      showToast('↺ Réimpression lancée !');
     } catch(e) { console.error(e); }
   };
 
