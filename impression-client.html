@@ -142,6 +142,11 @@
     <div class="checkmark">✓</div>
     <h2>Demande envoyée !</h2>
     <p>Passez au comptoir pour régler.<br>L'impression sera lancée après encaissement.</p>
+    <div id="successWarning" style="display:none; margin-top:1.2rem; padding:1rem 1.2rem; background:#fff3cd; border:1.5px solid #ffc107; border-radius:8px; font-size:0.88rem; color:#856404; line-height:1.6;">
+      ⚠️ <strong>Règlement en espèces uniquement</strong><br>
+      Le montant de votre impression est inférieur à 5 €.<br>
+      Le paiement par carte bancaire n'est pas accepté en dessous de ce seuil.
+    </div>
   </div>
 
   <div class="payment-notice">
@@ -342,11 +347,9 @@
     });
   }
 
-  // Sélectionne automatiquement le bon service selon le type de fichier
+  // Tous les fichiers passent par Uploadcare (fiable, sans limite de taille)
   function uploadFile(file, onProgress) {
-    const ext = file.name.split('.').pop().toLowerCase();
-    if (ext === 'pdf') return uploadToUploadcare(file, onProgress);
-    return uploadToImgBB(file, onProgress);
+    return uploadToUploadcare(file, onProgress);
   }
 
   // ── Envoi ──
@@ -395,6 +398,15 @@
       });
 
       formCard.style.display = 'none';
+
+      // Avertissement si montant < 5€
+      const prixFinal = parseFloat(prix);
+      if (prixFinal < 5) {
+        document.getElementById('successWarning').style.display = 'block';
+      } else {
+        document.getElementById('successWarning').style.display = 'none';
+      }
+
       successScreen.classList.add('show');
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
