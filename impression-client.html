@@ -38,19 +38,16 @@
     .file-drop-text { font-size: 0.85rem; color: var(--grey); line-height: 1.5; }
     .file-drop-text strong { color: var(--black); font-weight: 500; }
     .formats { margin-top: 0.5rem; font-size: 0.72rem; color: var(--grey); }
-
-    /* File list */
     .file-list { margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; }
     .file-item { display: flex; align-items: center; justify-content: space-between; background: var(--light); border: 1px solid var(--border); border-radius: 5px; padding: 0.5rem 0.8rem; font-size: 0.8rem; }
     .file-item-name { color: var(--black); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
     .file-item-pages { color: var(--grey); font-size: 0.72rem; }
     .file-item-remove { color: var(--grey); cursor: pointer; font-size: 1rem; padding: 0 0.2rem; flex-shrink: 0; }
     .file-item-remove:hover { color: #c0392b; }
-
-    /* Page summary */
+    .btn-add-more { display: block; width: 100%; margin-top: 0.7rem; padding: 0.65rem 1rem; border: 1.5px dashed var(--border); border-radius: 5px; background: var(--light); color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+    .btn-add-more:hover { border-color: var(--accent); background: #f0f5ef; }
     .page-summary { margin-top: 1rem; padding: 0.8rem 1rem; background: #eef4ed; border-radius: 5px; font-size: 0.85rem; color: var(--accent); display: none; }
     .page-summary strong { font-weight: 500; }
-
     .submit-btn { width: 100%; padding: 0.9rem; background: var(--black); color: var(--white); border: none; border-radius: 5px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 0.5rem; }
     .submit-btn:hover { background: var(--accent); }
     .submit-btn:active { transform: scale(0.99); }
@@ -127,10 +124,11 @@
       <div class="file-drop" id="fileDrop">
         <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" multiple />
         <span class="file-icon">📄</span>
-        <div class="file-drop-text"><strong>Appuyez pour choisir un ou plusieurs fichiers</strong><br>ou glissez-déposez ici</div>
+        <div class="file-drop-text"><strong>Touchez ici pour ajouter vos fichiers</strong><br>Un par un ou plusieurs à la fois<br>ou glissez-déposez ici</div>
       </div>
       <div class="formats">Formats acceptés : PDF, JPG, PNG — sélection multiple possible</div>
       <div class="file-list" id="fileList"></div>
+      <button type="button" class="btn-add-more" id="addMoreBtn" style="display:none;">+ Ajouter d'autres fichiers</button>
       <div class="page-summary" id="pageSummary"></div>
     </div>
     <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
@@ -191,6 +189,7 @@
   const fileInput    = document.getElementById('fileInput');
   const fileDrop     = document.getElementById('fileDrop');
   const fileList     = document.getElementById('fileList');
+  const addMoreBtn   = document.getElementById('addMoreBtn');
   const pageSummary  = document.getElementById('pageSummary');
   const submitBtn    = document.getElementById('submitBtn');
   const formCard     = document.getElementById('formCard');
@@ -262,6 +261,10 @@
       pageSummary.style.display = 'none';
       submitBtn.disabled = true;
     }
+
+    // Zone de dépôt vs bouton "ajouter d'autres fichiers"
+    fileDrop.style.display = selectedFiles.length > 0 ? 'none' : 'block';
+    addMoreBtn.style.display = selectedFiles.length > 0 ? 'block' : 'none';
   }
 
   // Mettre à jour le prix si le type change
@@ -269,6 +272,7 @@
 
   // ── Événements fichiers ──
   fileInput.addEventListener('change', () => addFiles(Array.from(fileInput.files)));
+  addMoreBtn.addEventListener('click', () => fileInput.click());
   fileDrop.addEventListener('dragover', (e) => { e.preventDefault(); fileDrop.classList.add('dragover'); });
   fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
   fileDrop.addEventListener('drop', (e) => {
@@ -310,16 +314,6 @@
     });
   }
 
-  // Lit un fichier en base64
-  function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = () => reject(new Error('Erreur lecture fichier'));
-      reader.readAsDataURL(file);
-    });
-  }
-
   // Upload PDF → Uploadcare (sans compression, qualité préservée, taille illimitée)
   function uploadToUploadcare(file, onProgress) {
     return new Promise((resolve, reject) => {
@@ -347,9 +341,11 @@
     });
   }
 
-  // Tous les fichiers passent par Uploadcare (fiable, sans limite de taille)
+  // Sélectionne automatiquement le bon service selon le type de fichier
   function uploadFile(file, onProgress) {
-    return uploadToUploadcare(file, onProgress);
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (ext === 'pdf') return uploadToUploadcare(file, onProgress);
+    return uploadToImgBB(file, onProgress);
   }
 
   // ── Envoi ──
