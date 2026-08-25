@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation — Système d'impression</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0f0f0e;
+      --white: #fafaf8;
+      --grey: #6b6b67;
+      --light: #f2f1ed;
+      --border: #e0dfd9;
+      --accent: #2d5a27;
+      --accent-light: #eef4ed;
+      --gold: #c9a84c;
+      --red: #c0392b;
+      --step-done: #2d5a27;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      background: var(--light);
+      color: var(--black);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .top-bar {
+      background: var(--black);
+      padding: 1.2rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .top-bar-logo {
+      font-family: 'DM Serif Display', serif;
+      color: var(--white);
+      font-size: 1.1rem;
+      font-weight: 400;
+    }
+    .top-bar-sub {
+      font-size: 0.7rem;
+      color: #666;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* ── Progress ── */
+    .progress-wrap {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0;
+      overflow-x: auto;
+    }
+    .progress-steps {
+      display: flex;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .progress-step {
+      flex: 1;
+      padding: 1rem 0.8rem;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--grey);
+      border-bottom: 3px solid transparent;
+      cursor: default;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    .progress-step.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .progress-step.done {
+      color: var(--step-done);
+      border-bottom-color: var(--step-done);
+    }
+    .progress-step .step-num {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      font-size: 0.65rem;
+      line-height: 18px;
+      margin-right: 0.4rem;
+      text-align: center;
+    }
+    .progress-step.done .step-num {
+      background: var(--step-done);
+      border-color: var(--step-done);
+      color: white;
+    }
+    .progress-step.done .step-num::after { content: "✓"; }
+    .progress-step:not(.done) .step-num { content: attr(data-n); }
+
+    /* ── Main ── */
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    .step-panel { display: none; animation: fadeIn 0.3s ease; }
+    .step-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .step-header { margin-bottom: 2rem; }
+    .step-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      margin-bottom: 0.6rem;
+    }
+    .step-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      line-height: 1.15;
+      margin-bottom: 0.5rem;
+    }
+    .step-desc { font-size: 0.9rem; color: var(--grey); line-height: 1.6; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-bottom: 1rem;
+    }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 1.2rem; }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-bottom: 0.4rem;
+    }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--light);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 300;
+      color: var(--black);
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+    .field input:focus, .field textarea:focus { border-color: var(--accent); background: var(--white); }
+    .field .hint { font-size: 0.75rem; color: var(--grey); margin-top: 0.3rem; line-height: 1.4; }
+    .field textarea { resize: vertical; min-height: 80px; font-family: 'DM Mono', monospace; font-size: 0.78rem; }
+
+    /* ── Prix row ── */
+    .prix-row { display: flex; gap: 1rem; }
+    .prix-row .field { flex: 1; }
+
+    /* ── Buttons ── */
+    .btn-row { display: flex; gap: 0.8rem; margin-top: 2rem; }
+    .btn-primary {
+      flex: 1;
+      padding: 0.9rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.04em;
+    }
+    .btn-primary:hover { background: var(--accent); }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-secondary {
+      padding: 0.9rem 1.4rem;
+      background: transparent;
+      color: var(--grey);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--grey); color: var(--black); }
+
+    /* ── Guide steps ── */
+    .guide { counter-reset: guide; }
+    .guide-step {
+      display: flex;
+      gap: 1rem;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid var(--border);
+      counter-increment: guide;
+    }
+    .guide-step:last-child { border-bottom: none; }
+    .guide-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      color: var(--accent);
+      min-width: 1.5rem;
+      padding-top: 0.1rem;
+    }
+    .guide-num::before { content: counter(guide); }
+    .guide-text { font-size: 0.85rem; line-height: 1.6; color: var(--black); }
+    .guide-text strong { font-weight: 500; }
+    .guide-text code {
+      font-family: 'DM Mono', monospace;
+      background: var(--light);
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      border: 1px solid var(--border);
+    }
+
+    /* ── Download section ── */
+    .download-grid { display: flex; flex-direction: column; gap: 0.8rem; }
+    .download-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.2rem;
+      background: var(--light);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .download-info strong { display: block; font-size: 0.88rem; font-weight: 500; margin-bottom: 0.15rem; }
+    .download-info span { font-size: 0.75rem; color: var(--grey); }
+    .btn-download {
+      padding: 0.5rem 1rem;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: 5px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .btn-download:hover { background: var(--accent); }
+
+    /* ── Checklist ── */
+    .checklist { display: flex; flex-direction: column; gap: 0.5rem; }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding: 0.8rem 1rem;
+      background: var(--light);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .check-item input[type="checkbox"] { margin-top: 0.15rem; accent-color: var(--accent); flex-shrink: 0; }
+
+    /* ── Success finale ── */
+    .success-finale {
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    .success-finale .big-check {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 1.5rem;
+    }
+    .success-finale h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      font-weight: 400;
+      margin-bottom: 0.6rem;
+    }
+    .success-finale p { font-size: 0.9rem; color: var(--grey); line-height: 1.7; }
+
+    /* ── Warning note ── */
+    .note-warning {
+      padding: 0.8rem 1rem;
+      background: #fffbf0;
+      border: 1px solid #e8d48a;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #6b5a1a;
+      line-height: 1.5;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <div class="top-bar-logo">Système d'impression</div>
+    <div class="top-bar-sub">Assistant d'installation</div>
+  </div>
+  <button onclick="resetDraft()" title="Effacer les paramètres enregistrés sur cet ordinateur" style="background:none;border:1px solid #333;color:#888;font-family:inherit;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.4rem 0.8rem;border-radius:4px;cursor:pointer;">Réinitialiser</button>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-steps">
+    <div class="progress-step active" id="prog-1"><span class="step-num">1</span>Établissement</div>
+    <div class="progress-step" id="prog-2"><span class="step-num">2</span>Firebase</div>
+    <div class="progress-step" id="prog-3"><span class="step-num">3</span>Stockage</div>
+    <div class="progress-step" id="prog-4"><span class="step-num">4</span>Fichiers</div>
+    <div class="progress-step" id="prog-5"><span class="step-num">5</span>Installation</div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── Étape 1 : Établissement ── -->
+  <div class="step-panel active" id="step-1">
+    <div class="step-header">
+      <div class="step-badge">Étape 1 sur 5</div>
+      <h1 class="step-title">Informations de l'établissement</h1>
+      <p class="step-desc">Ces informations apparaîtront sur la page client et la page comptoir.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Identité</div>
+      <div class="field">
+        <label>Nom de l'établissement</label>
+        <input type="text" id="nom" placeholder="Ex : Le Tabac de la Gare" />
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tarifs d'impression</div>
+      <div class="prix-row">
+        <div class="field">
+          <label>Noir &amp; blanc (€ / page)</label>
+          <input type="number" id="prix-nb" value="0.40" step="0.05" min="0.05" />
+        </div>
+        <div class="field">
+          <label>Couleur (€ / page)</label>
+          <input type="number" id="prix-couleur" value="0.90" step="0.05" min="0.05" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Sécurité comptoir</div>
+      <div class="field">
+        <label>Code PIN (4 chiffres)</label>
+        <input type="text" id="pin" placeholder="Ex : 1234" maxlength="4" pattern="\d{4}" />
+        <div class="hint">Ce code protège l'accès à la page comptoir de vos employés.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Imprimante Windows</div>
+      <div class="field">
+        <label>Nom exact de l'imprimante</label>
+        <input type="text" id="printer" placeholder="Ex : Konica Minolta BHC257i" />
+        <div class="hint">Laissez vide pour utiliser l'imprimante par défaut. Pour trouver le nom exact : ouvrez l'invite de commandes et tapez <code>wmic printer get name</code></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="goToStep(2)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- ── Étape 2 : Firebase ── -->
+  <div class="step-panel" id="step-2">
+    <div class="step-header">
+      <div class="step-badge">Étape 2 sur 5</div>
+      <h1 class="step-title">Configurer Firebase</h1>
+      <p class="step-desc">Firebase stocke les demandes d'impression en temps réel. Suivez ces étapes.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Guide de création</div>
+      <div class="guide">
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-text">Allez sur <strong>console.firebase.google.com</strong> et connectez-vous avec un compte Google.</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-text">Cliquez sur <strong>Créer un projet</strong>, donnez-lui un nom (ex: <code>impression-tabac-gare</code>), désactivez Analytics, puis cliquez <strong>Créer</strong>.</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-text">Dans le menu gauche, allez dans <strong>Firestore Database</strong> → <strong>Créer une base de données</strong> → mode <strong>Test</strong> → région <code>eur3 (europe-west)</code>.</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-text">Dans <strong>Authentication</strong> → <strong>Sign-in method</strong> → activez <strong>Anonyme</strong>.</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-text">Dans ⚙️ <strong>Paramètres du projet</strong> → <strong>Général</strong> → <strong>Vos applications</strong> → cliquez sur <strong>&lt;/&gt;</strong> → nommez l'app → copiez le bloc <code>firebaseConfig</code>.</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-text">Dans <strong>Firestore</strong> → <strong>Règles</strong>, remplacez le contenu par les règles ci-dessous puis cliquez <strong>Publier</strong>.</div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-text">Dans ⚙️ <strong>Paramètres du projet</strong> → <strong>Comptes de service</strong> → <strong>Générer une nouvelle clé privée</strong>. Un fichier JSON est téléchargé : gardez-le, il sera demandé à l'étape 4.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Règles Firestore à copier</div>
+      <div class="field">
+        <textarea readonly style="height:160px; color: var(--grey);">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /impressions/{docId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+    match /config/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+  }
+}</textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Coller votre configuration Firebase</div>
+      <div class="field">
+        <label>Bloc firebaseConfig</label>
+        <textarea id="firebase-config" placeholder='const firebaseConfig = {
+  apiKey: "AIza...",
+  authDomain: "...",
+  projectId: "...",
+  storageBucket: "...",
+  messagingSenderId: "...",
+  appId: "..."
+};' style="height: 160px;"></textarea>
+        <div class="hint">Collez ici le bloc complet copié depuis Firebase.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">PIN comptoir</div>
+      <p style="font-size:0.85rem; color:var(--grey); line-height:1.6; margin-bottom:1rem;">
+        Le code PIN <strong id="pin-reminder">—</strong> est enregistré automatiquement dans Firestore,
+        sous forme <strong>hachée (SHA-256)</strong> — il n'apparaît jamais en clair dans la base.
+        Aucune manipulation dans la console n'est nécessaire.
+      </p>
+      <button id="pinBtn" class="btn-primary" onclick="setupFirestorePin()">Enregistrer le PIN dans Firestore</button>
+      <div id="pinStatus"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="goToStep(1)">← Retour</button>
+      <button class="btn-primary" onclick="goToStep(3)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- ── Étape 3 : Stockage ── -->
+  <div class="step-panel" id="step-3">
+    <div class="step-header">
+      <div class="step-badge">Étape 3 sur 5</div>
+      <h1 class="step-title">Configurer le stockage</h1>
+      <p class="step-desc">Trois services sont nécessaires pour stocker les fichiers des clients.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">1 — Uploadcare (pour les PDFs)</div>
+      <div class="guide">
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-text">Créez un compte gratuit sur <strong>uploadcare.com</strong></div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-text">Allez dans <strong>Settings → API Keys</strong> et copiez la <strong>Public Key</strong></div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:1rem">
+        <label>Uploadcare Public Key</label>
+        <input type="text" id="uploadcare-key" placeholder="Ex : 5e604eed62404acc8459" />
+      </div>
+      <div class="field">
+        <label>Sous-domaine CDN Uploadcare</label>
+        <input type="text" id="uploadcare-cdn" placeholder="Ex : 22i7gudqk3.ucarecd.net" />
+        <div class="hint">Visible dans Settings → CDN ou dans l'URL d'un fichier uploadé.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">2 — ImgBB (pour les images JPG/PNG)</div>
+      <div class="guide">
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-text">Créez un compte gratuit sur <strong>imgbb.com</strong></div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-text">Allez dans <strong>API</strong> (en haut à droite) → <strong>Get API key</strong></div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:1rem">
+        <label>ImgBB API Key</label>
+        <input type="text" id="imgbb-key" placeholder="Ex : cd2eb3a46f81b6a1f5f241c97d21a0c3" />
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="goToStep(2)">← Retour</button>
+      <button class="btn-primary" onclick="goToStep(4)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- ── Étape 4 : Génération ── -->
+  <div class="step-panel" id="step-4">
+    <div class="step-header">
+      <div class="step-badge">Étape 4 sur 5</div>
+      <h1 class="step-title">Télécharger vos fichiers</h1>
+      <p class="step-desc">Tous vos fichiers sont générés automatiquement avec vos paramètres.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Récapitulatif</div>
+      <div id="recap" style="font-size:0.85rem; line-height:2; color: var(--grey);"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">1 — Mise en ligne des pages</div>
+      <p style="font-size:0.85rem; color:var(--grey); line-height:1.6; margin-bottom:1rem;">
+        Le dépôt GitHub est créé, les pages envoyées et GitHub Pages activé automatiquement.
+      </p>
+      <div class="field">
+        <label>Token d'accès GitHub</label>
+        <input type="password" id="github-token" placeholder="ghp_… ou github_pat_…" autocomplete="off" />
+        <div class="hint">
+          À créer sur <strong>github.com/settings/tokens</strong> → <em>Generate new token (classic)</em> →
+          cochez la case <code>repo</code>. Le token reste dans cette page, il n'est jamais enregistré
+          ni recopié dans les fichiers générés.
+        </div>
+      </div>
+      <button id="deployBtn" class="btn-primary" onclick="deployToGitHub()" style="margin-bottom:1rem;">↑ Déployer sur GitHub</button>
+      <div id="deployStatus"></div>
+      <div id="qrZone" style="display:none; margin-top:1.2rem;">
+        <div class="card-title" style="margin-bottom:0.8rem;">QR codes à imprimer</div>
+        <div style="display:flex; gap:1.5rem; flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div id="qr-client"></div>
+            <div style="font-size:0.75rem; color:var(--grey); margin:0.5rem 0;">Client</div>
+            <button class="btn-download" onclick="downloadQR('qr-client','qr-client.png')">↓ PNG</button>
+          </div>
+          <div style="text-align:center;">
+            <div id="qr-comptoir"></div>
+            <div style="font-size:0.75rem; color:var(--grey); margin:0.5rem 0;">Comptoir</div>
+            <button class="btn-download" onclick="downloadQR('qr-comptoir','qr-comptoir.png')">↓ PNG</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">2 — Fichiers du PC maître</div>
+      <div class="field">
+        <label>Clé de service Firebase (serviceAccountKey.json)</label>
+        <input type="file" id="service-key" accept=".json" onchange="loadServiceKey(this)" />
+        <div class="hint" id="service-key-hint">
+          Le fichier JSON téléchargé à l'étape 2 (Paramètres du projet → Comptes de service).
+          Il ne quitte jamais cet ordinateur.
+        </div>
+      </div>
+      <button class="btn-primary" onclick="downloadAll()" style="margin:0.5rem 0 1rem;">↓ Tout télécharger pour le PC maître</button>
+      <div class="note-warning">
+        ⚠️ <code>install.bat</code>, <code>impression_auto.py</code> et <code>serviceAccountKey.json</code>
+        doivent rester <strong>dans le même dossier</strong> (Téléchargements).
+        <code>install.bat</code> s'occupe du reste.
+      </div>
+      <div class="download-grid" style="margin-top:1rem;">
+        <div class="download-item">
+          <div class="download-info">
+            <strong>install.bat</strong>
+            <span>Installe tout sur le PC Windows — à lancer en administrateur</span>
+          </div>
+          <button class="btn-download" onclick="downloadBat()">↓</button>
+        </div>
+        <div class="download-item">
+          <div class="download-info">
+            <strong>impression_auto.py</strong>
+            <span>Service d'impression automatique</span>
+          </div>
+          <button class="btn-download" onclick="downloadPython()">↓</button>
+        </div>
+        <div class="download-item">
+          <div class="download-info">
+            <strong>impression-client.html</strong>
+            <span>Page client — déjà en ligne si vous avez déployé</span>
+          </div>
+          <button class="btn-download" onclick="downloadClient()">↓</button>
+        </div>
+        <div class="download-item">
+          <div class="download-info">
+            <strong>impression-comptoir.html</strong>
+            <span>Page comptoir — déjà en ligne si vous avez déployé</span>
+          </div>
+          <button class="btn-download" onclick="downloadComptoir()">↓</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="goToStep(3)">← Retour</button>
+      <button class="btn-primary" onclick="goToStep(5)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- ── Étape 5 : Installation ── -->
+  <div class="step-panel" id="step-5">
+    <div class="step-header">
+      <div class="step-badge">Étape 5 sur 5</div>
+      <h1 class="step-title">Installation finale</h1>
+      <p class="step-desc">Suivez ces étapes et cochez-les au fur et à mesure.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Sur le PC maître — une seule manipulation</div>
+      <div class="checklist">
+        <label class="check-item"><input type="checkbox"> Vérifier que <code>install.bat</code>, <code>impression_auto.py</code> et <code>serviceAccountKey.json</code> sont dans le <strong>même dossier</strong> (Téléchargements)</label>
+        <label class="check-item"><input type="checkbox"> Clic droit sur <code>install.bat</code> → <strong>Exécuter en tant qu'administrateur</strong></label>
+        <label class="check-item"><input type="checkbox"> Attendre la fin du script (5 à 10 minutes selon la connexion)</label>
+        <label class="check-item"><input type="checkbox"> Vérifier que l'icône d'impression apparaît près de l'horloge</label>
+      </div>
+      <div class="note-warning" style="margin-top:1rem;">
+        <code>install.bat</code> installe Python et SumatraPDF, installe les dépendances,
+        copie les fichiers dans <code>C:\Impression</code>, configure le démarrage automatique
+        et lance le service. Rien d'autre n'est à faire à la main.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Test final</div>
+      <div class="checklist">
+        <label class="check-item"><input type="checkbox"> Scanner le QR code client et envoyer un document test</label>
+        <label class="check-item"><input type="checkbox"> Vérifier que la demande apparaît sur la page comptoir</label>
+        <label class="check-item"><input type="checkbox"> Cliquer "Imprimer" et vérifier que l'impression se lance</label>
+        <label class="check-item"><input type="checkbox"> Tester le PIN comptoir</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Après l'installation</div>
+      <div class="note-warning">
+        🔐 Pensez à <strong>supprimer le token GitHub</strong> utilisé à l'étape 4 sur
+        <strong>github.com/settings/tokens</strong> : il n'est plus nécessaire une fois les pages en ligne.
+      </div>
+    </div>
+
+    <div class="success-finale">
+      <div class="big-check">🎉</div>
+      <h2>Installation terminée !</h2>
+      <p>Le système d'impression est opérationnel.<br>Les QR codes à imprimer sont téléchargeables à l'étape 4.</p>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  let currentStep = 1;
+
+  function goToStep(n) {
+    if (n === 2 && !validateStep1()) return;
+    if (n === 3 && !validateStep2()) return;
+    if (n === 4 && !validateStep3()) return;
+    if (n === 4) buildRecap();
+
+    document.getElementById('step-' + currentStep).classList.remove('active');
+    document.getElementById('prog-' + currentStep).classList.remove('active');
+    document.getElementById('prog-' + currentStep).classList.add('done');
+
+    currentStep = n;
+    document.getElementById('step-' + n).classList.add('active');
+
+    // Update progress
+    for (let i = 1; i <= 5; i++) {
+      const prog = document.getElementById('prog-' + i);
+      prog.classList.remove('active', 'done');
+      if (i < n) prog.classList.add('done');
+      if (i === n) prog.classList.add('active');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function validateStep1() {
+    const nom = document.getElementById('nom').value.trim();
+    const pin = document.getElementById('pin').value.trim();
+    if (!nom) { alert('Veuillez saisir le nom de l\'établissement.'); return false; }
+    if (!/^\d{4}$/.test(pin)) { alert('Le PIN doit être exactement 4 chiffres.'); return false; }
+    // Update pin reminder in step 2
+    document.getElementById('pin-reminder').textContent = pin;
+    return true;
+  }
+
+  function validateStep2() {
+    const config = document.getElementById('firebase-config').value.trim();
+    if (!config || !config.includes('apiKey')) {
+      alert('Veuillez coller votre configuration Firebase.');
+      return false;
+    }
+    return true;
+  }
+
+  function validateStep3() {
+    const uc = document.getElementById('uploadcare-key').value.trim();
+    const imgbb = document.getElementById('imgbb-key').value.trim();
+    const cdn = document.getElementById('uploadcare-cdn').value.trim();
+    if (!uc) { alert('Veuillez saisir votre clé Uploadcare.'); return false; }
+    if (!cdn) { alert('Veuillez saisir votre sous-domaine CDN Uploadcare.'); return false; }
+    if (!imgbb) { alert('Veuillez saisir votre clé ImgBB.'); return false; }
+    return true;
+  }
+
+  function buildRecap() {
+    const nom = document.getElementById('nom').value.trim();
+    const prixNb = document.getElementById('prix-nb').value;
+    const prixC = document.getElementById('prix-couleur').value;
+    const pin = document.getElementById('pin').value.trim();
+    const printer = document.getElementById('printer').value.trim();
+    document.getElementById('recap').innerHTML = `
+      <div>🏪 <strong>Établissement :</strong> ${nom}</div>
+      <div>🖨️ <strong>N&B :</strong> ${parseFloat(prixNb).toFixed(2)} € / page</div>
+      <div>🎨 <strong>Couleur :</strong> ${parseFloat(prixC).toFixed(2)} € / page</div>
+      <div>🔐 <strong>PIN :</strong> ****</div>
+      <div>🖨️ <strong>Imprimante :</strong> ${printer || 'Imprimante par défaut'}</div>
+    `;
+  }
+
+  function parseFirebaseConfig() {
+    const raw = document.getElementById('firebase-config').value;
+    const config = {};
+    const fields = ['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId'];
+    fields.forEach(f => {
+      const m = raw.match(new RegExp(f + '\\s*:\\s*["\']([^"\']+)["\']'));
+      if (m) config[f] = m[1];
+    });
+    return config;
+  }
+
+  function getConfig() {
+    return {
+      nom: document.getElementById('nom').value.trim(),
+      prixNb: parseFloat(document.getElementById('prix-nb').value),
+      prixCouleur: parseFloat(document.getElementById('prix-couleur').value),
+      pin: document.getElementById('pin').value.trim(),
+      printer: document.getElementById('printer').value.trim(),
+      firebase: parseFirebaseConfig(),
+      uploadcareKey: document.getElementById('uploadcare-key').value.trim(),
+      uploadcareCdn: document.getElementById('uploadcare-cdn').value.trim(),
+      imgbbKey: document.getElementById('imgbb-key').value.trim(),
+    };
+  }
+
+  function downloadFile(content, filename) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+  }
+
+  function generateClientHTML(cfg) {
+    const fb = cfg.firebase;
+    return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Impression — ${cfg.nom}</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --black: #111110; --grey: #6b6b67; --light: #f5f4f0; --border: #e2e1dc; --accent: #2d5a27; --white: #ffffff; }
+    body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--light); color: var(--black); min-height: 100vh; }
+    header { padding: 3rem 2rem 2rem; text-align: center; border-bottom: 1px solid var(--border); background: var(--white); }
+    .site-label { font-weight: 500; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); margin-bottom: 0.6rem; }
+    header h1 { font-family: 'DM Serif Display', serif; font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 400; letter-spacing: -0.02em; line-height: 1.1; }
+    header p { margin-top: 0.8rem; font-size: 0.95rem; color: var(--grey); max-width: 380px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+    .tarifs { display: flex; justify-content: center; gap: 1px; margin: 2.5rem auto 0; max-width: 360px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .tarif { flex: 1; background: var(--white); padding: 1rem 1.2rem; text-align: center; }
+    .tarif-label { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--grey); margin-bottom: 0.3rem; }
+    .tarif-price { font-family: 'DM Serif Display', serif; font-size: 1.4rem; }
+    .tarif-unit { font-size: 0.7rem; color: var(--grey); margin-top: 0.1rem; }
+    main { max-width: 520px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    .steps { display: flex; flex-direction: column; margin-bottom: 2.5rem; }
+    .step { display: flex; align-items: flex-start; gap: 1rem; padding: 1.2rem 0; border-bottom: 1px solid var(--border); opacity: 0; transform: translateY(12px); animation: fadeUp 0.4s ease forwards; }
+    .step:nth-child(1) { animation-delay: 0.1s; } .step:nth-child(2) { animation-delay: 0.2s; } .step:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    .step-num { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--accent); min-width: 1.5rem; padding-top: 0.05rem; }
+    .step-text strong { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 0.15rem; }
+    .step-text span { font-size: 0.82rem; color: var(--grey); line-height: 1.5; }
+    .form-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 2rem 1.8rem; opacity: 0; animation: fadeUp 0.4s ease 0.4s forwards; }
+    .form-group { margin-bottom: 1.4rem; }
+    label { display: block; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey); margin-bottom: 0.5rem; }
+    input[type="text"], select { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 5px; background: var(--light); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 300; color: var(--black); outline: none; transition: border-color 0.2s; appearance: none; }
+    input[type="text"]:focus, select:focus { border-color: var(--accent); background: var(--white); }
+    .file-drop { width: 100%; border: 1.5px dashed var(--border); border-radius: 5px; background: var(--light); padding: 2rem 1rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative; }
+    .file-drop:hover, .file-drop.dragover { border-color: var(--accent); background: #f0f5ef; }
+    .file-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .file-icon { font-size: 1.6rem; margin-bottom: 0.5rem; display: block; }
+    .file-drop-text { font-size: 0.85rem; color: var(--grey); line-height: 1.5; }
+    .file-drop-text strong { color: var(--black); font-weight: 500; }
+    .formats { margin-top: 0.5rem; font-size: 0.72rem; color: var(--grey); }
+    .file-list { margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    .file-item { display: flex; align-items: center; justify-content: space-between; background: var(--light); border: 1px solid var(--border); border-radius: 5px; padding: 0.5rem 0.8rem; font-size: 0.8rem; }
+    .file-item-name { color: var(--black); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 70%; }
+    .file-item-pages { color: var(--grey); font-size: 0.72rem; }
+    .file-item-remove { color: var(--grey); cursor: pointer; font-size: 1rem; padding: 0 0.2rem; flex-shrink: 0; }
+    .file-item-remove:hover { color: #c0392b; }
+    .btn-add-more { display: block; width: 100%; margin-top: 0.7rem; padding: 0.65rem 1rem; border: 1.5px dashed var(--border); border-radius: 5px; background: var(--light); color: var(--accent); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
+    .btn-add-more:hover { border-color: var(--accent); background: #f0f5ef; }
+    .page-summary { margin-top: 1rem; padding: 0.8rem 1rem; background: #eef4ed; border-radius: 5px; font-size: 0.85rem; color: var(--accent); display: none; }
+    .page-summary strong { font-weight: 500; }
+    .submit-btn { width: 100%; padding: 0.9rem; background: var(--black); color: var(--white); border: none; border-radius: 5px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.05em; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 0.5rem; }
+    .submit-btn:hover { background: var(--accent); }
+    .submit-btn:active { transform: scale(0.99); }
+    .submit-btn:disabled { background: var(--border); color: var(--grey); cursor: not-allowed; }
+    .payment-notice { margin-top: 1.8rem; padding: 1rem 1.2rem; background: #fffbf0; border: 1.5px solid #e8d48a; border-radius: 6px; font-size: 0.85rem; color: #6b5a1a; line-height: 1.6; text-align: center; opacity: 0; animation: fadeUp 0.4s ease 0.5s forwards; }
+    .payment-notice strong { color: #3d3000; font-weight: 500; }
+    .note { margin-top: 1.8rem; padding: 1rem 1.2rem; background: var(--white); border: 1px solid var(--border); border-radius: 6px; font-size: 0.8rem; color: var(--grey); line-height: 1.6; opacity: 0; animation: fadeUp 0.4s ease 0.5s forwards; }
+    .note strong { color: var(--black); font-weight: 500; }
+    .success-screen { display: none; text-align: center; padding: 3rem 1rem; }
+    .success-screen.show { display: block; animation: fadeUp 0.4s ease forwards; }
+    .checkmark { width: 56px; height: 56px; border-radius: 50%; background: #eef4ed; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.4rem; }
+    .success-screen h2 { font-family: 'DM Serif Display', serif; font-size: 1.6rem; font-weight: 400; margin-bottom: 0.6rem; }
+    .success-screen p { font-size: 0.9rem; color: var(--grey); line-height: 1.6; }
+    footer { text-align: center; padding: 1.5rem; font-size: 0.72rem; color: var(--border); letter-spacing: 0.1em; text-transform: uppercase; }
+    .select-wrap { position: relative; }
+    .select-wrap::after { content: '↓'; position: absolute; right: 0.9rem; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 0.8rem; color: var(--grey); }
+    .uploading { font-size: 0.85rem; color: var(--grey); text-align: center; margin-top: 0.8rem; display: none; }
+    .progress-bar { width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-top: 0.8rem; display: none; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width 0.3s ease; }
+    .cash-warning { display:none; margin-top:1.2rem; padding:1rem 1.2rem; background:#fff3cd; border:1.5px solid #ffc107; border-radius:8px; font-size:0.88rem; color:#856404; line-height:1.6; }
+  </style>
+</head>
+<body>
+<header>
+  <p class="site-label">${cfg.nom}</p>
+  <h1>Service d'impression</h1>
+  <p>Déposez vos documents, nous les imprimons pour vous.</p>
+  <div class="tarifs">
+    <div class="tarif">
+      <div class="tarif-label">Noir &amp; blanc</div>
+      <div class="tarif-price">${cfg.prixNb.toFixed(2).replace('.', ',')} €</div>
+      <div class="tarif-unit">par page</div>
+    </div>
+    <div class="tarif">
+      <div class="tarif-label">Couleur</div>
+      <div class="tarif-price">${cfg.prixCouleur.toFixed(2).replace('.', ',')} €</div>
+      <div class="tarif-unit">par page</div>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="steps">
+    <div class="step"><span class="step-num">1</span><div class="step-text"><strong>Envoyez vos fichiers</strong><span>PDF ou images, depuis votre téléphone ou ordinateur.</span></div></div>
+    <div class="step"><span class="step-num">2</span><div class="step-text"><strong>Réglez au comptoir</strong><span>Le prix est calculé automatiquement selon le nombre de pages.</span></div></div>
+    <div class="step"><span class="step-num">3</span><div class="step-text"><strong>Récupérez vos documents</strong><span>L'impression est lancée après encaissement.</span></div></div>
+  </div>
+  <div class="form-card" id="formCard">
+    <div class="form-group">
+      <label for="prenom">Votre prénom</label>
+      <input type="text" id="prenom" placeholder="Ex : Marie" autocomplete="given-name" />
+    </div>
+    <div class="form-group">
+      <label for="couleur">Type d'impression</label>
+      <div class="select-wrap">
+        <select id="couleur">
+          <option value="nb">Noir &amp; blanc — ${cfg.prixNb.toFixed(2).replace('.', ',')} € / page</option>
+          <option value="couleur">Couleur — ${cfg.prixCouleur.toFixed(2).replace('.', ',')} € / page</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Vos documents</label>
+      <div class="file-drop" id="fileDrop">
+        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" multiple />
+        <span class="file-icon">📄</span>
+        <div class="file-drop-text"><strong>Touchez ici pour ajouter vos fichiers</strong><br>Un par un ou plusieurs à la fois<br>ou glissez-déposez ici</div>
+      </div>
+      <div class="formats">Formats acceptés : PDF, JPG, PNG — sélection multiple possible</div>
+      <div class="file-list" id="fileList"></div>
+      <button type="button" class="btn-add-more" id="addMoreBtn" style="display:none;">+ Ajouter d'autres fichiers</button>
+      <div class="page-summary" id="pageSummary"></div>
+    </div>
+    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="uploading" id="uploadingMsg">⏳ Envoi en cours...</div>
+    <button class="submit-btn" id="submitBtn" disabled>Envoyer ma demande</button>
+  </div>
+  <div class="success-screen" id="successScreen">
+    <div class="checkmark">✓</div>
+    <h2>Demande envoyée !</h2>
+    <p>Passez au comptoir pour régler.<br>L'impression sera lancée après encaissement.</p>
+    <div id="successWarning" class="cash-warning">
+      ⚠️ <strong>Règlement en espèces uniquement</strong><br>
+      Le montant est inférieur à 5 €. Le paiement par carte bancaire n'est pas accepté en dessous de ce seuil.
+    </div>
+  </div>
+  <div class="payment-notice">
+    💳 Le paiement par carte bancaire est accepté <strong>à partir de 5 €</strong> uniquement.<br>
+    En dessous, le règlement se fait <strong>en espèces</strong>.
+  </div>
+  <div class="note">
+    <strong>Confidentialité</strong> — Vos fichiers sont utilisés uniquement pour l'impression et ne sont pas conservés.
+  </div>
+</main>
+<footer>${cfg.nom} &nbsp;·&nbsp; Service impression</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"><\/script>
+<script>if (typeof pdfjsLib !== 'undefined') { pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }<\/script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const firebaseConfig = { apiKey: "${fb.apiKey}", authDomain: "${fb.authDomain}", projectId: "${fb.projectId}", storageBucket: "${fb.storageBucket}", messagingSenderId: "${fb.messagingSenderId}", appId: "${fb.appId}" };
+  const UPLOADCARE_KEY = "${cfg.uploadcareKey}";
+  const UPLOADCARE_CDN = "${cfg.uploadcareCdn}";
+  const IMGBB_API_KEY = "${cfg.imgbbKey}";
+  const PRIX = { nb: ${cfg.prixNb}, couleur: ${cfg.prixCouleur} };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const fileInput = document.getElementById('fileInput');
+  const fileDrop = document.getElementById('fileDrop');
+  const fileList = document.getElementById('fileList');
+  const addMoreBtn = document.getElementById('addMoreBtn');
+  const pageSummary = document.getElementById('pageSummary');
+  const submitBtn = document.getElementById('submitBtn');
+  const formCard = document.getElementById('formCard');
+  const successScreen = document.getElementById('successScreen');
+  const uploadingMsg = document.getElementById('uploadingMsg');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+  let selectedFiles = [];
+  async function countPdfPages(file) { try { const ab = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument({ data: ab }).promise; return pdf.numPages; } catch(e) { return 1; } }
+  async function addFiles(newFiles) { for (const file of newFiles) { if (selectedFiles.find(f => f.file.name === file.name && f.file.size === file.size)) continue; const ext = file.name.split('.').pop().toLowerCase(); let pages = 1; if (ext === 'pdf') pages = await countPdfPages(file); selectedFiles.push({ file, pages }); } renderFileList(); }
+  function renderFileList() {
+    fileList.innerHTML = ''; let totalPages = 0;
+    selectedFiles.forEach((item, idx) => { totalPages += item.pages; const div = document.createElement('div'); div.className = 'file-item'; div.innerHTML = '<span class="file-item-name">📎 ' + item.file.name + '<\/span><span class="file-item-pages">' + item.pages + ' page' + (item.pages > 1 ? 's' : '') + '<\/span><span class="file-item-remove" data-idx="' + idx + '">✕<\/span>'; fileList.appendChild(div); });
+    fileList.querySelectorAll('.file-item-remove').forEach(btn => { btn.addEventListener('click', () => { selectedFiles.splice(parseInt(btn.dataset.idx), 1); renderFileList(); }); });
+    if (selectedFiles.length > 0) { const type = document.getElementById('couleur').value; const prix = (totalPages * PRIX[type]).toFixed(2); pageSummary.style.display = 'block'; pageSummary.innerHTML = '📄 <strong>' + totalPages + ' page' + (totalPages > 1 ? 's' : '') + '<\/strong> au total · Prix estimé : <strong>' + prix + ' €<\/strong>'; submitBtn.disabled = false; } else { pageSummary.style.display = 'none'; submitBtn.disabled = true; }
+    fileDrop.style.display = selectedFiles.length > 0 ? 'none' : 'block';
+    addMoreBtn.style.display = selectedFiles.length > 0 ? 'block' : 'none';
+  }
+  document.getElementById('couleur').addEventListener('change', renderFileList);
+  fileInput.addEventListener('change', () => addFiles(Array.from(fileInput.files)));
+  addMoreBtn.addEventListener('click', () => fileInput.click());
+  fileDrop.addEventListener('dragover', (e) => { e.preventDefault(); fileDrop.classList.add('dragover'); });
+  fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
+  fileDrop.addEventListener('drop', (e) => { e.preventDefault(); fileDrop.classList.remove('dragover'); addFiles(Array.from(e.dataTransfer.files)); });
+  document.getElementById('prenom').addEventListener('input', function() { this.style.borderColor = ''; });
+  function uploadToUploadcare(file, onProgress) { return new Promise((resolve, reject) => { const formData = new FormData(); formData.append('UPLOADCARE_PUB_KEY', UPLOADCARE_KEY); formData.append('UPLOADCARE_STORE', '1'); formData.append('file', file); const xhr = new XMLHttpRequest(); xhr.open('POST', 'https://upload.uploadcare.com/base/'); xhr.upload.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total); }; xhr.onload = () => { try { const res = JSON.parse(xhr.responseText); if (xhr.status === 200 && res.file) { resolve({ url: 'https://' + UPLOADCARE_CDN + '/' + res.file + '/' + file.name, deleteURL: null }); } else reject(new Error('Erreur upload')); } catch(e) { reject(e); } }; xhr.onerror = () => reject(new Error('Erreur réseau')); xhr.send(formData); }); }
+  function uploadToImgBB(file, onProgress) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => { const base64 = reader.result.split(',')[1]; const formData = new FormData(); formData.append('image', base64); formData.append('name', file.name); const xhr = new XMLHttpRequest(); xhr.open('POST', 'https://api.imgbb.com/1/upload?key=' + IMGBB_API_KEY); xhr.upload.onprogress = (e) => { if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total); }; xhr.onload = () => { try { const res = JSON.parse(xhr.responseText); if (xhr.status === 200) resolve({ url: res.data.url, deleteURL: res.data.delete_url || null }); else reject(new Error('Erreur upload')); } catch(e) { reject(e); } }; xhr.onerror = () => reject(new Error('Erreur réseau')); xhr.send(formData); }; reader.onerror = () => reject(new Error('Erreur lecture fichier')); reader.readAsDataURL(file); }); }
+  function uploadFile(file, onProgress) { const ext = file.name.split('.').pop().toLowerCase(); if (ext === 'pdf') return uploadToUploadcare(file, onProgress); return uploadToImgBB(file, onProgress); }
+  submitBtn.addEventListener('click', async () => {
+    const prenom = document.getElementById('prenom').value.trim();
+    if (!prenom) { document.getElementById('prenom').focus(); document.getElementById('prenom').style.borderColor = '#c0392b'; return; }
+    if (selectedFiles.length === 0) return;
+    submitBtn.disabled = true; uploadingMsg.style.display = 'block'; progressBar.style.display = 'block'; progressFill.style.width = '0%';
+    try {
+      const type = document.getElementById('couleur').value;
+      const totalPages = selectedFiles.reduce((sum, f) => sum + f.pages, 0);
+      const prix = (totalPages * PRIX[type]).toFixed(2);
+      const uploads = [];
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const item = selectedFiles[i]; uploadingMsg.textContent = '⏳ Envoi ' + (i+1) + '/' + selectedFiles.length + ' — ' + item.file.name;
+        const result = await uploadFile(item.file, (p) => { progressFill.style.width = ((i + p) / selectedFiles.length * 100) + '%'; });
+        uploads.push({ fileName: item.file.name, fileURL: result.url, deleteURL: result.deleteURL || null, pages: item.pages });
+      }
+      progressFill.style.width = '100%';
+      await addDoc(collection(db, "impressions"), { prenom, type, fichiers: uploads, totalPages, prix: parseFloat(prix), statut: "en_attente", createdAt: serverTimestamp() });
+      formCard.style.display = 'none';
+      if (parseFloat(prix) < 5) document.getElementById('successWarning').style.display = 'block';
+      successScreen.classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch(err) { uploadingMsg.style.display = 'none'; progressBar.style.display = 'none'; submitBtn.disabled = false; alert("Une erreur s'est produite. Veuillez réessayer."); console.error(err); }
+  });
+<\/script>
+</body>
+</html>`;
+  }
+
+  function downloadClient() {
+    const cfg = getConfig();
+    downloadFile(generateClientHTML(cfg), 'impression-client.html');
+  }
+
+  function downloadComptoir() {
+    downloadFile(generateComptoirHTML(getConfig()), 'impression-comptoir.html');
+  }
+
+  function generateComptoirHTML(cfg) {
+    const fb = cfg.firebase;
+    const prixNb = cfg.prixNb;
+    const prixCouleur = cfg.prixCouleur;
+    return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Comptoir — ${cfg.nom}</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--black:#111110;--grey:#6b6b67;--light:#f5f4f0;--border:#e2e1dc;--accent:#2d5a27;--white:#ffffff;--red:#c0392b}
+    body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--light);color:var(--black);min-height:100vh}
+    .pin-screen{position:fixed;inset:0;background:var(--black);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;padding:2rem}
+    .pin-screen.hidden{display:none}
+    .pin-logo{font-family:'DM Serif Display',serif;font-size:1.4rem;color:#fff;margin-bottom:.4rem}
+    .pin-sub{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#666;margin-bottom:2.5rem}
+    .pin-label{font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:#888;margin-bottom:1rem}
+    .pin-dots{display:flex;gap:.8rem;margin-bottom:2rem}
+    .pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid #444;background:transparent;transition:background .15s,border-color .15s}
+    .pin-dot.filled{background:#fff;border-color:#fff}
+    .pin-dot.error{background:var(--red);border-color:var(--red)}
+    .pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;max-width:240px;width:100%}
+    .pin-key{background:#1a1a1a;border:none;border-radius:8px;color:#fff;font-family:'DM Serif Display',serif;font-size:1.4rem;padding:1rem;cursor:pointer;transition:background .15s,transform .1s;text-align:center}
+    .pin-key:hover{background:#2a2a2a}
+    .pin-key:active{transform:scale(.95);background:#333}
+    .pin-key.delete{font-family:'DM Sans',sans-serif;font-size:1rem;color:#888}
+    .pin-key.empty{background:transparent;cursor:default}
+    .pin-error{font-size:.8rem;color:var(--red);margin-top:1rem;opacity:0;transition:opacity .3s}
+    .pin-error.show{opacity:1}
+    .app{display:none}
+    .app.visible{display:block}
+    header{background:var(--black);color:#fff;padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+    .header-left h1{font-family:'DM Serif Display',serif;font-size:1.2rem;font-weight:400}
+    .header-left span{font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:#888}
+    .header-right{display:flex;align-items:center;gap:.8rem}
+    .badge{background:var(--accent);color:#fff;border-radius:20px;padding:.25rem .7rem;font-size:.75rem;font-weight:500;min-width:28px;text-align:center}
+    .badge.zero{background:#444}
+    .btn-new-day{background:transparent;border:1px solid #444;color:#aaa;border-radius:6px;padding:.35rem .7rem;font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:500;cursor:pointer;transition:border-color .2s,color .2s}
+    .btn-new-day:hover{border-color:var(--red);color:#ff6b6b}
+    .status-bar{background:#fff;border-bottom:1px solid var(--border);padding:.6rem 1.5rem;display:flex;align-items:center;gap:.5rem}
+    .status-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .status-text{font-size:.75rem;color:var(--grey)}
+    main{padding:1.2rem 1rem 4rem;max-width:600px;margin:0 auto}
+    .empty{text-align:center;padding:4rem 1rem;color:var(--grey)}
+    .empty-icon{font-size:2.5rem;margin-bottom:1rem;opacity:.4}
+    .empty p{font-size:.9rem;line-height:1.6}
+    .section-title{font-size:.65rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-bottom:.8rem;margin-top:1.2rem}
+    .section-title:first-child{margin-top:0}
+    .job-card{background:#fff;border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;overflow:hidden;animation:slideIn .3s ease}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+    .job-card.traite{opacity:.5}
+    .job-header{padding:1rem 1.2rem .8rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .job-prenom{font-family:'DM Serif Display',serif;font-size:1.2rem}
+    .job-time{font-size:.72rem;color:var(--grey)}
+    .job-body{padding:.8rem 1.2rem}
+    .job-prix{display:flex;align-items:baseline;gap:.5rem;margin-bottom:.8rem;padding:.7rem 1rem;background:var(--light);border-radius:6px}
+    .job-prix-amount{font-family:'DM Serif Display',serif;font-size:1.6rem}
+    .job-prix-detail{font-size:.78rem;color:var(--grey);line-height:1.4}
+    .job-meta{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem}
+    .tag{font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:.25rem .6rem;border-radius:4px}
+    .tag-nb{background:#f0f0ee;color:var(--grey)}
+    .tag-couleur{background:#fef3e2;color:#a05a00}
+    .tag-pages{background:#eef4ed;color:var(--accent)}
+    .job-files{margin-bottom:1rem}
+    .job-file{display:flex;align-items:center;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid var(--border);font-size:.82rem}
+    .job-file:last-child{border-bottom:none}
+    .job-file a{color:var(--accent);text-decoration:none;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:75%}
+    .job-file a:hover{text-decoration:underline}
+    .job-file-pages{font-size:.72rem;color:var(--grey);flex-shrink:0}
+    .job-actions{display:flex;gap:.6rem}
+    .btn-print{flex:1;padding:.85rem;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;transition:background .2s,transform .1s}
+    .btn-print:hover{background:#234a1f}
+    .btn-print:active{transform:scale(.98)}
+    .btn-refuse{padding:.85rem 1rem;background:transparent;color:var(--red);border:1px solid #f0d0cc;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer}
+    .btn-refuse:hover{background:#fdf0ee}
+    .job-done{display:flex;align-items:center;justify-content:space-between;padding:.5rem .2rem;font-size:.8rem;color:var(--grey)}
+    .btn-reprint{padding:.4rem .8rem;background:transparent;color:var(--accent);border:1px solid #c8dfc5;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;cursor:pointer}
+    .btn-reprint:hover{background:#eef4ed}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .2s}
+    .modal-overlay.show{opacity:1;pointer-events:all}
+    .modal{background:#fff;border-radius:12px;padding:2rem 1.5rem;max-width:340px;width:100%;text-align:center}
+    .modal h2{font-family:'DM Serif Display',serif;font-size:1.3rem;font-weight:400;margin-bottom:.6rem}
+    .modal p{font-size:.85rem;color:var(--grey);line-height:1.6;margin-bottom:1.5rem}
+    .modal-actions{display:flex;gap:.6rem}
+    .modal-confirm{flex:1;padding:.8rem;background:var(--red);color:#fff;border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer}
+    .modal-cancel{flex:1;padding:.8rem;background:var(--light);color:var(--black);border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer}
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--black);color:#fff;padding:.7rem 1.4rem;border-radius:30px;font-size:.85rem;font-weight:500;opacity:0;transition:opacity .3s;pointer-events:none;z-index:100;white-space:nowrap}
+    .toast.show{opacity:1}
+  </style>
+</head>
+<body>
+<div class="pin-screen" id="pinScreen">
+  <div class="pin-logo">${cfg.nom}</div>
+  <div class="pin-sub">Comptoir — Accès restreint</div>
+  <div class="pin-label">Code d'accès</div>
+  <div class="pin-dots" id="pinDots">
+    <div class="pin-dot" id="dot0"></div><div class="pin-dot" id="dot1"></div>
+    <div class="pin-dot" id="dot2"></div><div class="pin-dot" id="dot3"></div>
+  </div>
+  <div class="pin-keypad">
+    <button class="pin-key" data-key="1">1</button><button class="pin-key" data-key="2">2</button><button class="pin-key" data-key="3">3</button>
+    <button class="pin-key" data-key="4">4</button><button class="pin-key" data-key="5">5</button><button class="pin-key" data-key="6">6</button>
+    <button class="pin-key" data-key="7">7</button><button class="pin-key" data-key="8">8</button><button class="pin-key" data-key="9">9</button>
+    <button class="pin-key empty"></button><button class="pin-key" data-key="0">0</button><button class="pin-key delete" id="pinDelete">⌫</button>
+  </div>
+  <div class="pin-error" id="pinError">Code incorrect — réessayez</div>
+</div>
+<div class="app" id="app">
+  <header>
+    <div class="header-left"><h1>Impressions</h1><span>${cfg.nom} — Comptoir</span></div>
+    <div class="header-right">
+      <button class="btn-new-day" id="btnNewDay">Nouvelle journée</button>
+      <div class="badge zero" id="badge">0</div>
+    </div>
+  </header>
+  <div class="status-bar"><span class="status-dot"></span><span class="status-text">En écoute — les demandes apparaissent en temps réel</span></div>
+  <main id="mainContent">
+    <div class="empty" id="emptyState"><div class="empty-icon">🖨️</div><p>Aucune demande en attente.<br>Les nouvelles demandes apparaîtront ici automatiquement.</p></div>
+  </main>
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>Nouvelle journée</h2>
+      <p>Toutes les demandes du jour seront <strong>supprimées définitivement</strong>. Cette action est irréversible.</p>
+      <div class="modal-actions"><button class="modal-cancel" id="modalCancel">Annuler</button><button class="modal-confirm" id="modalConfirm">Confirmer</button></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, orderBy, onSnapshot, doc, updateDoc, deleteDoc, getDocs, serverTimestamp, query, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  const firebaseConfig = { apiKey: "${fb.apiKey}", authDomain: "${fb.authDomain}", projectId: "${fb.projectId}", storageBucket: "${fb.storageBucket}", messagingSenderId: "${fb.messagingSenderId}", appId: "${fb.appId}" };
+  const PRIX = { nb: ${prixNb}, couleur: ${prixCouleur} };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const pinScreen = document.getElementById('pinScreen');
+  const appEl = document.getElementById('app');
+  const pinError = document.getElementById('pinError');
+  const mainContent = document.getElementById('mainContent');
+  const emptyState = document.getElementById('emptyState');
+  const badge = document.getElementById('badge');
+  const toast = document.getElementById('toast');
+  const btnNewDay = document.getElementById('btnNewDay');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalCancel = document.getElementById('modalCancel');
+  const modalConfirm = document.getElementById('modalConfirm');
+  let jobs = {}, isFirst = true, pinValue = '';
+  function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+  function playBeep() { try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value = 880; g.gain.setValueAtTime(0.3, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4); o.start(ctx.currentTime); o.stop(ctx.currentTime + 0.4); } catch(e) {} }
+  function formatTime(ts) { if (!ts) return ''; return ts.toDate().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }); }
+  function updateDots() { for (let i = 0; i < 4; i++) { const d = document.getElementById('dot' + i); d.classList.toggle('filled', i < pinValue.length); d.classList.remove('error'); } }
+  function shakeError() { for (let i = 0; i < 4; i++) document.getElementById('dot' + i).classList.add('error'); pinError.classList.add('show'); setTimeout(() => { pinValue = ''; updateDots(); pinError.classList.remove('show'); }, 1200); }
+  async function sha256Hex(txt) { const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt)); return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,"0"); }).join(""); }
+  async function verifyPin(p) { try { await signInAnonymously(auth); const d = await getDoc(doc(db, "config", "auth")); if (!d.exists()) { shakeError(); return; } const data = d.data(); let ok = false; if (data.pinHash) { ok = (await sha256Hex(p)) === String(data.pinHash); } else if (data.pin != null) { ok = p === String(data.pin); } if (ok) { pinScreen.classList.add('hidden'); appEl.classList.add('visible'); startListening(); } else shakeError(); } catch(e) { shakeError(); } }
+  document.querySelectorAll('.pin-key[data-key]').forEach(btn => { btn.addEventListener('click', () => { if (pinValue.length >= 4) return; pinValue += btn.dataset.key; updateDots(); if (pinValue.length === 4) setTimeout(() => verifyPin(pinValue), 150); }); });
+  document.getElementById('pinDelete').addEventListener('click', () => { pinValue = pinValue.slice(0, -1); updateDots(); });
+  function startListening() { const q = query(collection(db, "impressions"), orderBy("createdAt", "desc")); onSnapshot(q, (snapshot) => { snapshot.docChanges().forEach(change => { const data = { id: change.doc.id, ...change.doc.data() }; if (change.type === 'added') { jobs[data.id] = data; if (!isFirst && data.statut === 'en_attente') { playBeep(); showToast('Nouvelle demande de ' + data.prenom + ' !'); } } else if (change.type === 'modified') jobs[data.id] = data; else if (change.type === 'removed') delete jobs[data.id]; }); isFirst = false; renderJobs(); }); }
+  function renderJobs() {
+    const pending = Object.values(jobs).filter(j => j.statut === 'en_attente');
+    const done = Object.values(jobs).filter(j => j.statut !== 'en_attente');
+    badge.textContent = pending.length; badge.className = pending.length > 0 ? 'badge' : 'badge zero';
+    mainContent.innerHTML = '';
+    if (pending.length === 0 && done.length === 0) { mainContent.appendChild(emptyState); return; }
+    if (pending.length > 0) { const t = document.createElement('div'); t.className = 'section-title'; t.textContent = 'En attente — encaissement requis (' + pending.length + ')'; mainContent.appendChild(t); pending.sort((a,b) => (a.createdAt?.seconds||0) - (b.createdAt?.seconds||0)).forEach(j => mainContent.appendChild(createCard(j))); }
+    if (done.length > 0) { const t = document.createElement('div'); t.className = 'section-title'; t.textContent = 'Traités'; mainContent.appendChild(t); done.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0)).slice(0,10).forEach(j => mainContent.appendChild(createCard(j))); }
+  }
+  function createCard(job) {
+    const card = document.createElement('div');
+    const isPending = job.statut === 'en_attente';
+    card.className = 'job-card' + (!isPending ? ' traite' : '');
+    const typeTag = job.type === 'couleur' ? '<span class="tag tag-couleur">Couleur<\/span>' : '<span class="tag tag-nb">Noir &amp; blanc<\/span>';
+    const fichiers = job.fichiers || (job.fileURL ? [{ fileName: job.fileName, fileURL: job.fileURL, pages: job.totalPages || 1 }] : []);
+    const totalPages = job.totalPages || fichiers.reduce((s,f) => s + (f.pages||1), 0);
+    const prix = job.prix || (totalPages * (job.type === 'couleur' ? ${prixCouleur} : ${prixNb}));
+    const filesHTML = fichiers.map(f => '<div class="job-file"><a href="' + f.fileURL + '" target="_blank">📎 ' + f.fileName + '<\/a><span class="job-file-pages">' + (f.pages||1) + ' p.<\/span><\/div>').join('');
+    card.innerHTML = '<div class="job-header"><span class="job-prenom">' + job.prenom + '<\/span><span class="job-time">' + formatTime(job.createdAt) + '<\/span><\/div><div class="job-body"><div class="job-prix"><span class="job-prix-amount">' + prix.toFixed(2) + ' €<\/span><span class="job-prix-detail">' + totalPages + ' page' + (totalPages>1?'s':'') + '<br>' + (isPending ? 'à encaisser avant impression' : 'traité') + '<\/span><\/div><div class="job-meta">' + typeTag + '<span class="tag tag-pages">📄 ' + totalPages + ' page' + (totalPages>1?'s':'') + '<\/span><span class="tag tag-pages">🗂 ' + fichiers.length + ' fichier' + (fichiers.length>1?'s':'') + '<\/span><\/div><div class="job-files">' + filesHTML + '<\/div>' + (isPending ? '<div class="job-actions"><button class="btn-print" onclick="handlePrint(\\'' + job.id + '\\')">✓ Encaissé — Lancer l\\'impression<\/button><button class="btn-refuse" onclick="handleRefuse(\\'' + job.id + '\\')">✕<\/button><\/div>' : '<div class="job-done"><span>' + (job.statut==='imprime'?'✓ Imprimé':'✕ Refusé') + '<\/span>' + (job.statut==='imprime' ? '<button class="btn-reprint" onclick="handleReprint(\\'' + job.id + '\\')">↺ Réimprimer<\/button>' : '') + '<\/div>') + '<\/div>';
+    return card;
+  }
+  window.handlePrint = async (id) => { try { await updateDoc(doc(db,"impressions",id), { statut:"imprime", treatedAt: serverTimestamp() }); showToast('✓ Impression lancée !'); } catch(e) { console.error(e); } };
+  window.handleRefuse = async (id) => { if (!confirm('Refuser cette demande ?')) return; try { await updateDoc(doc(db,"impressions",id), { statut:"refuse", treatedAt: serverTimestamp() }); showToast('Demande refusée'); } catch(e) { console.error(e); } };
+  window.handleReprint = async (id) => { if (!confirm('Relancer l\\\'impression ?')) return; try { await updateDoc(doc(db,"impressions",id), { statut:"imprime", printed_locally: false, treatedAt: serverTimestamp() }); showToast('↺ Réimpression lancée !'); } catch(e) { console.error(e); } };
+  btnNewDay.addEventListener('click', () => modalOverlay.classList.add('show'));
+  modalCancel.addEventListener('click', () => modalOverlay.classList.remove('show'));
+  modalConfirm.addEventListener('click', async () => {
+    modalOverlay.classList.remove('show'); showToast('⏳ Suppression en cours...');
+    try { const snapshot = await getDocs(collection(db,"impressions")); let count = 0; for (const d of snapshot.docs) { await deleteDoc(doc(db,"impressions",d.id)); count++; } jobs = {}; renderJobs(); showToast('✓ ' + count + ' demande' + (count>1?'s':'') + ' supprimée' + (count>1?'s':'') + ' — Bonne journée !'); } catch(e) { showToast('✗ Erreur'); }
+  });
+<\/script>
+</body>
+</html>`;
+  }
+
+  function generatePythonScript(cfg) {
+    const printer = cfg.printer ? `"${cfg.printer}"` : '""';
+    return `"""
+Script d'impression automatique — ${cfg.nom}
+Généré automatiquement le ${new Date().toLocaleDateString('fr-FR')}
+
+Installation : pip install firebase-admin requests pystray pillow pymupdf
+Lancement    : pythonw impression_auto.py
+"""
+
+import time, os, sys, tempfile, subprocess, threading, requests
+import firebase_admin
+from firebase_admin import credentials, firestore
+from PIL import Image, ImageDraw
+import pystray
+import ctypes
+
+SERVICE_ACCOUNT_PATH = "serviceAccountKey.json"
+PRINTER_NAME = ${printer}
+DELETE_DELAY = 3600
+IMGBB_API_KEY = "${cfg.imgbbKey}"
+SUMATRA_PATHS = [
+    r"C:\\Users\\Public\\AppData\\Local\\SumatraPDF\\SumatraPDF.exe",
+    r"C:\\Program Files\\SumatraPDF\\SumatraPDF.exe",
+    r"C:\\Program Files (x86)\\SumatraPDF\\SumatraPDF.exe",
+]
+
+stats = {"total": 0, "erreurs": 0}
+tray_icon = None
+
+try:
+    cred = credentials.Certificate(SERVICE_ACCOUNT_PATH)
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
+except Exception as e:
+    ctypes.windll.user32.MessageBoxW(0, f"Erreur Firebase :\\n{e}\\n\\nVerifiez serviceAccountKey.json.", "Impression", 16)
+    sys.exit(1)
+
+def create_icon_image():
+    img = Image.new("RGB", (64, 64), color="#2d5a27")
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([12, 10, 52, 54], fill="white")
+    draw.rectangle([16, 14, 48, 50], fill="#2d5a27")
+    draw.rectangle([20, 20, 44, 26], fill="white")
+    draw.rectangle([20, 30, 44, 36], fill="white")
+    draw.rectangle([20, 40, 34, 46], fill="white")
+    return img
+
+def update_tray_title():
+    if tray_icon:
+        tray_icon.title = f"${cfg.nom} — Impression | OK: {stats['total']} | Err: {stats['erreurs']}"
+
+def on_quit(icon, item):
+    icon.stop()
+    os.kill(os.getpid(), 9)
+
+def on_status(icon, item):
+    def _show():
+        ctypes.windll.user32.MessageBoxW(0, f"Impressions reussies : {stats['total']}\\nErreurs : {stats['erreurs']}", "${cfg.nom} — Impression", 0x40)
+    threading.Thread(target=_show, daemon=True).start()
+
+def setup_tray():
+    global tray_icon
+    menu = pystray.Menu(
+        pystray.MenuItem("${cfg.nom} — Impression", None, enabled=False),
+        pystray.Menu.SEPARATOR,
+        pystray.MenuItem("Voir le statut", on_status),
+        pystray.Menu.SEPARATOR,
+        pystray.MenuItem("Quitter", on_quit),
+    )
+    tray_icon = pystray.Icon("impression", create_icon_image(), "${cfg.nom} — Impression active", menu)
+    return tray_icon
+
+def get_sumatra():
+    for p in SUMATRA_PATHS:
+        if os.path.exists(p): return p
+    local = os.path.join(os.path.dirname(os.path.abspath(__file__)), "SumatraPDF.exe")
+    return local if os.path.exists(local) else None
+
+def delete_imgbb_file(delete_url):
+    if not delete_url: return
+    try: requests.get(delete_url, timeout=10)
+    except: pass
+
+def schedule_deletion(job_id, fichiers, delay=DELETE_DELAY):
+    def _delete():
+        time.sleep(delay)
+        for f in fichiers:
+            if f.get("deleteURL"): delete_imgbb_file(f["deleteURL"])
+        try: db.collection("impressions").document(job_id).update({"files_deleted": True})
+        except: pass
+    threading.Thread(target=_delete, daemon=True).start()
+
+def download_file(url, filename):
+    try:
+        r = requests.get(url, timeout=30); r.raise_for_status()
+        ext = os.path.splitext(filename)[1].lower()
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=ext)
+        tmp.write(r.content); tmp.close()
+        return tmp.name
+    except: return None
+
+def convert_to_grayscale(filepath):
+    try:
+        ext = os.path.splitext(filepath)[1].lower()
+        if ext == ".pdf":
+            import fitz
+            from PIL import Image as PILImage
+            doc = fitz.open(filepath)
+            output = fitz.open()
+            for page in doc:
+                mat = fitz.Matrix(2, 2)
+                pix = page.get_pixmap(matrix=mat, colorspace=fitz.csGRAY)
+                img = PILImage.frombytes("L", [pix.width, pix.height], pix.samples).convert("RGB")
+                img_tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+                img.save(img_tmp.name, "PNG"); img_tmp.close()
+                new_page = output.new_page(width=page.rect.width, height=page.rect.height)
+                new_page.insert_image(new_page.rect, filename=img_tmp.name)
+                try: os.unlink(img_tmp.name)
+                except: pass
+            doc.close()
+            tmp_path = os.path.join(tempfile.gettempdir(), f"nb_print_{os.getpid()}.pdf")
+            output.save(tmp_path); output.close()
+            return tmp_path
+        elif ext in [".jpg", ".jpeg", ".png"]:
+            from PIL import Image as PILImage
+            img = PILImage.open(filepath)
+            if img.mode != "RGB":
+                bg = PILImage.new("RGB", img.size, (255, 255, 255))
+                try: bg.paste(img, mask=img.split()[3] if img.mode == "RGBA" else None)
+                except: bg.paste(img.convert("RGB"))
+                img = bg
+            img = img.convert("L").convert("RGB")
+            tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+            img.save(tmp.name, "PNG"); tmp.close()
+            return tmp.name
+        return filepath
+    except: return filepath
+
+def print_file(filepath, color_type="nb"):
+    try:
+        sumatra = get_sumatra()
+        if not sumatra: return False
+        actual = convert_to_grayscale(filepath) if color_type == "nb" else filepath
+        settings = "paper=A4,fit"
+        if PRINTER_NAME:
+            cmd = [sumatra, "-print-to", PRINTER_NAME, "-print-settings", settings, "-silent", actual]
+        else:
+            cmd = [sumatra, "-print-to-default", "-print-settings", settings, "-silent", actual]
+        subprocess.Popen(cmd); return True
+    except: return False
+
+def handle_job(doc_snapshot):
+    data = doc_snapshot.to_dict()
+    job_id = doc_snapshot.id
+    if data.get("statut") != "imprime" or data.get("printed_locally"): return
+    prenom = data.get("prenom", "Inconnu")
+    fichiers = data.get("fichiers") or [{"fileName": data.get("fileName", "document"), "fileURL": data.get("fileURL", "")}]
+    try: db.collection("impressions").document(job_id).update({"printed_locally": True})
+    except: pass
+    tmp_files = []; all_ok = True
+    for f in fichiers:
+        fn = f.get("fileName", "document")
+        url = f.get("fileURL", "")
+        if not url: continue
+        if isinstance(url, dict): url = url.get("url", "")
+        if not url: continue
+        color_type = data.get("type", "nb")
+        tmp = download_file(url, fn)
+        if tmp and print_file(tmp, color_type):
+            tmp_files.append(tmp)
+        else:
+            all_ok = False
+    if all_ok:
+        stats["total"] += 1; update_tray_title()
+        def cleanup():
+            time.sleep(60)
+            for p in tmp_files:
+                try: os.unlink(p)
+                except: pass
+        threading.Thread(target=cleanup, daemon=True).start()
+        if not data.get("files_deleted"): schedule_deletion(job_id, fichiers)
+    else:
+        stats["erreurs"] += 1; update_tray_title()
+
+def check_missed_jobs():
+    try:
+        docs = db.collection("impressions").where("statut", "==", "imprime").where("printed_locally", "==", False).get()
+        for doc in list(docs):
+            threading.Thread(target=handle_job, args=(doc,), daemon=True).start()
+    except: pass
+
+def on_snapshot(col_snapshot, changes, read_time):
+    for change in changes:
+        if change.type.name in ("ADDED", "MODIFIED"):
+            doc = change.document; data = doc.to_dict()
+            if data.get("statut") == "imprime" and not data.get("printed_locally"):
+                threading.Thread(target=handle_job, args=(doc,), daemon=True).start()
+
+def start_firebase_listener():
+    check_missed_jobs()
+    db.collection("impressions").on_snapshot(on_snapshot)
+    while True: time.sleep(1)
+
+threading.Thread(target=start_firebase_listener, daemon=True).start()
+tray = setup_tray()
+tray.run()
+`;
+  }
+
+  function downloadPython() {
+    downloadFile(generatePythonScript(getConfig()), 'impression_auto.py');
+  }
+
+  // ── Fichiers du PC maitre ──
+  let serviceAccountRaw = null;
+
+  function loadServiceKey(input) {
+    const hint = document.getElementById('service-key-hint');
+    const file = input.files && input.files[0];
+    if (!file) { serviceAccountRaw = null; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if (!parsed.private_key || !parsed.project_id) throw new Error('format');
+        serviceAccountRaw = reader.result;
+        hint.innerHTML = '<span style="color:var(--accent)">✓ Clé valide — projet ' + parsed.project_id + '</span>';
+      } catch(e) {
+        serviceAccountRaw = null;
+        hint.innerHTML = '<span style="color:var(--red)">Ce fichier n\'est pas une clé de service Firebase valide.</span>';
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function generateBat(cfg) {
+    return `@echo off
+chcp 65001 >nul
+title Installation impression — ${cfg.nom}
+echo ================================================
+echo   Installation du service d'impression
+echo   ${cfg.nom}
+echo ================================================
+echo.
+
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+  echo [ERREUR] Ce script doit etre lance en administrateur.
+  echo Clic droit sur install.bat puis "Executer en tant qu'administrateur".
+  pause
+  exit /b 1
+)
+
+setlocal EnableExtensions
+set "DEST=C:\\Impression"
+set "SRC=%~dp0"
+
+if not exist "%SRC%impression_auto.py" (
+  echo [ERREUR] impression_auto.py est introuvable dans ce dossier.
+  echo Placez install.bat, impression_auto.py et serviceAccountKey.json ensemble.
+  pause
+  exit /b 1
+)
+if not exist "%SRC%serviceAccountKey.json" (
+  echo [ERREUR] serviceAccountKey.json est introuvable dans ce dossier.
+  pause
+  exit /b 1
+)
+
+echo [1/6] Dossier %DEST%
+if not exist "%DEST%" mkdir "%DEST%"
+
+echo [2/6] Python
+set "PYEXE="
+where python >nul 2>&1 && set "PYEXE=python"
+if not defined PYEXE where py >nul 2>&1 && set "PYEXE=py"
+if not defined PYEXE (
+  echo       Installation de Python, patientez...
+  winget install -e --id Python.Python.3.12 --silent --accept-package-agreements --accept-source-agreements
+  for %%P in (
+    "%LOCALAPPDATA%\\Programs\\Python\\Python312\\python.exe"
+    "%LOCALAPPDATA%\\Programs\\Python\\Python313\\python.exe"
+    "%ProgramFiles%\\Python312\\python.exe"
+    "%ProgramFiles%\\Python313\\python.exe"
+  ) do if exist %%P set "PYEXE=%%~P"
+) else (
+  echo       Deja installe.
+)
+if not defined PYEXE where python >nul 2>&1 && set "PYEXE=python"
+if not defined PYEXE (
+  echo [ERREUR] Python est installe mais introuvable dans cette session.
+  echo Redemarrez le PC puis relancez install.bat.
+  pause
+  exit /b 1
+)
+
+echo [3/6] SumatraPDF
+if exist "%ProgramFiles%\\SumatraPDF\\SumatraPDF.exe" (
+  echo       Deja installe.
+) else (
+  winget install -e --id SumatraPDF.SumatraPDF --silent --accept-package-agreements --accept-source-agreements
+)
+
+echo [4/6] Copie des fichiers
+copy /Y "%SRC%impression_auto.py" "%DEST%" >nul
+copy /Y "%SRC%serviceAccountKey.json" "%DEST%" >nul
+
+echo [5/6] Dependances Python
+"%PYEXE%" -m pip install --upgrade pip >nul 2>&1
+"%PYEXE%" -m pip install firebase-admin requests pystray pillow pymupdf
+if %errorlevel% neq 0 (
+  echo [ERREUR] Installation des dependances impossible.
+  echo Redemarrez le PC puis relancez install.bat.
+  pause
+  exit /b 1
+)
+
+echo [6/6] Demarrage automatique
+set "PYWEXE=pythonw"
+if not "%PYEXE%"=="python" if not "%PYEXE%"=="py" set "PYWEXE=%PYEXE:python.exe=pythonw.exe%"
+powershell -NoProfile -Command "$t='%PYWEXE%'; if(-not (Test-Path $t)){$c=Get-Command $t -ErrorAction SilentlyContinue; if($c){$t=$c.Source}}; $w=New-Object -ComObject WScript.Shell; $s=$w.CreateShortcut(([Environment]::GetFolderPath('Startup'))+'\\Impression.lnk'); $s.TargetPath=$t; $s.Arguments='C:\\Impression\\impression_auto.py'; $s.WorkingDirectory='C:\\Impression'; $s.Save()"
+
+echo.
+echo Lancement du service...
+start "" "%PYWEXE%" "%DEST%\\impression_auto.py"
+
+echo.
+echo ================================================
+echo   Installation terminee.
+echo   L'icone doit apparaitre pres de l'horloge.
+echo ================================================
+pause
+`;
+  }
+
+  function downloadBat() {
+    const cfg = getConfig();
+    if (!cfg.nom) { alert("Renseignez le nom de l'établissement (étape 1)."); return; }
+    downloadFile(generateBat(cfg).replace(/\n/g, '\r\n'), 'install.bat');
+  }
+
+  function downloadAll() {
+    const cfg = getConfig();
+    if (!cfg.nom) { alert("Renseignez le nom de l'établissement (étape 1)."); return; }
+    if (!serviceAccountRaw) {
+      alert("Sélectionnez d'abord la clé de service Firebase (serviceAccountKey.json).\n\nElle se télécharge depuis la console Firebase : Paramètres du projet → Comptes de service → Générer une nouvelle clé privée.");
+      return;
+    }
+    const files = [
+      [generateBat(cfg).replace(/\n/g, '\r\n'), 'install.bat'],
+      [generatePythonScript(cfg), 'impression_auto.py'],
+      [serviceAccountRaw, 'serviceAccountKey.json'],
+      [generateClientHTML(cfg), 'impression-client.html'],
+      [generateComptoirHTML(cfg), 'impression-comptoir.html'],
+    ];
+    files.forEach((f, i) => setTimeout(() => downloadFile(f[0], f[1]), i * 400));
+  }
+
+  // ── QR codes ──
+  function renderQRCodes(clientUrl, comptoirUrl) {
+    const zone = document.getElementById('qrZone');
+    zone.style.display = 'block';
+    if (typeof QRCode === 'undefined') {
+      zone.innerHTML = '<div class=\"note-warning\">La bibliothèque de QR codes n\'a pas pu être chargée ' +
+        '(pas d\'accès à cdnjs.cloudflare.com). Générez-les depuis les deux URLs ci-dessus sur ' +
+        '<strong>qr-code-generator.com<' + '/strong>.<' + '/div>';
+      return;
+    }
+    ['qr-client', 'qr-comptoir'].forEach(id => { document.getElementById(id).innerHTML = ''; });
+    new QRCode(document.getElementById('qr-client'),   { text: clientUrl,   width: 170, height: 170, correctLevel: QRCode.CorrectLevel.M });
+    new QRCode(document.getElementById('qr-comptoir'), { text: comptoirUrl, width: 170, height: 170, correctLevel: QRCode.CorrectLevel.M });
+  }
+
+  function downloadQR(containerId, filename) {
+    const canvas = document.querySelector('#' + containerId + ' canvas');
+    const img = document.querySelector('#' + containerId + ' img');
+    let href = null;
+    if (canvas) { try { href = canvas.toDataURL('image/png'); } catch(e) {} }
+    if (!href && img && img.src) href = img.src;
+    if (!href) { alert("Déployez d'abord les pages sur GitHub pour générer les QR codes."); return; }
+    const a = document.createElement('a');
+    a.href = href;
+    a.download = filename;
+    a.click();
+  }
+
+  // ── PIN Firestore automatique ──
+  async function sha256Hex(txt) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function setupFirestorePin() {
+    const cfg = getConfig();
+    const btn = document.getElementById('pinBtn');
+    const status = document.getElementById('pinStatus');
+    const log = (msg, ok) => {
+      status.innerHTML = '<div style="padding:0.7rem 0 0; font-size:0.82rem; line-height:1.5; color:' +
+        (ok ? 'var(--accent)' : 'var(--red)') + ';">' + msg + '<' + '/div>';
+    };
+    if (!/^\d{4}$/.test(cfg.pin)) { log("Renseignez d'abord un PIN à 4 chiffres (étape 1).", false); return; }
+    if (!cfg.firebase.apiKey || !cfg.firebase.projectId) { log("Collez d'abord votre configuration Firebase ci-dessus.", false); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement...';
+    try {
+      const [appMod, authMod, fsMod] = await Promise.all([
+        import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js'),
+        import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'),
+        import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js')
+      ]);
+      const app = appMod.initializeApp(cfg.firebase, 'wizard-' + Date.now());
+      await authMod.signInAnonymously(authMod.getAuth(app));
+      const pinHash = await sha256Hex(cfg.pin);
+      await fsMod.setDoc(fsMod.doc(fsMod.getFirestore(app), 'config', 'auth'), { pinHash: pinHash });
+      log('✓ PIN enregistré dans Firestore. La page comptoir est protégée.', true);
+      btn.textContent = 'PIN enregistré';
+    } catch (e) {
+      const m = String(e && e.message || e);
+      let aide = m;
+      if (m.indexOf('permission') !== -1 || m.indexOf('PERMISSION') !== -1) {
+        aide = "Écriture refusée. Vérifiez que les règles Firestore ci-dessus ont bien été publiées, " +
+               "et que le document <code>config/auth</code> n'existe pas déjà (les règles interdisent de l'écraser — supprimez-le pour le recréer).";
+      } else if (m.indexOf('auth/') !== -1 || m.indexOf('CONFIGURATION_NOT_FOUND') !== -1) {
+        aide = "Connexion anonyme refusée. Activez <strong>Authentication → Sign-in method → Anonyme</strong> dans Firebase.";
+      }
+      log('Erreur : ' + aide, false);
+      btn.disabled = false;
+      btn.textContent = 'Réessayer';
+    }
+  }
+
+  // ── Deploiement GitHub (token fourni par l'installateur) ──
+  async function githubRequest(token, endpoint, method, body) {
+    const res = await fetch("https://api.github.com" + endpoint, {
+      method,
+      headers: {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/vnd.github+json",
+        "Content-Type": "application/json"
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    let data = {};
+    try { data = await res.json(); } catch(e) {}
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  function toBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  function slugify(str) {
+    return str.toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+
+  async function deployToGitHub() {
+    const cfg = getConfig();
+    const nom = cfg.nom;
+    const token = document.getElementById('github-token').value.trim();
+    const btn = document.getElementById('deployBtn');
+    const status = document.getElementById('deployStatus');
+
+    function log(msg, ok = true) {
+      status.innerHTML += '<div style="padding:0.3rem 0; font-size:0.82rem; color:' +
+        (ok ? 'var(--accent)' : 'var(--red)') + ';">' + msg + '<' + '/div>';
+    }
+
+    if (!nom) { alert("Veuillez remplir le nom de l'établissement (étape 1)."); return; }
+    if (!token) { alert("Collez votre token GitHub pour lancer le déploiement."); return; }
+    if (!cfg.firebase.apiKey) { alert("La configuration Firebase est manquante (étape 2)."); return; }
+    if (!cfg.uploadcareKey || !cfg.imgbbKey) { alert("Les clés de stockage sont manquantes (étape 3)."); return; }
+
+    const repoName = "impression-" + slugify(nom);
+    btn.disabled = true;
+    btn.textContent = "Déploiement en cours...";
+    status.innerHTML = "";
+
+    try {
+      log("Vérification du token...");
+      const me = await githubRequest(token, "/user", "GET");
+      if (!me.ok) throw new Error("Token GitHub invalide, expiré, ou sans la permission « repo ».");
+      const user = me.data.login;
+      log("Connecté en tant que " + user);
+
+      log("Création du dépôt " + repoName + "...");
+      const repoRes = await githubRequest(token, "/user/repos", "POST", {
+        name: repoName,
+        description: "Service impression — " + nom,
+        private: false,
+        auto_init: true
+      });
+      if (!repoRes.ok && repoRes.status !== 422) {
+        throw new Error("Impossible de créer le dépôt : " + (repoRes.data.message || repoRes.status));
+      }
+      log(repoRes.status === 422 ? "Dépôt déjà existant, mise à jour..." : "Dépôt créé.");
+
+      await new Promise(r => setTimeout(r, 2000));
+
+      const files = [
+        { name: "impression-client.html",   content: generateClientHTML(cfg) },
+        { name: "impression-comptoir.html", content: generateComptoirHTML(cfg) },
+      ];
+
+      for (const file of files) {
+        log("Envoi de " + file.name + "...");
+        let sha;
+        const getRes = await githubRequest(token, "/repos/" + user + "/" + repoName + "/contents/" + file.name, "GET");
+        if (getRes.ok) sha = getRes.data.sha;
+        const uploadRes = await githubRequest(token, "/repos/" + user + "/" + repoName + "/contents/" + file.name, "PUT", {
+          message: "Deploy " + file.name + " - " + nom,
+          content: toBase64(file.content),
+          ...(sha ? { sha } : {})
+        });
+        if (!uploadRes.ok) throw new Error("Erreur d'envoi de " + file.name + " : " + (uploadRes.data.message || uploadRes.status));
+        log(file.name + " en ligne.");
+      }
+
+      log("Activation de GitHub Pages...");
+      const pagesRes = await githubRequest(token, "/repos/" + user + "/" + repoName + "/pages", "POST", {
+        source: { branch: "main", path: "/" }
+      });
+      log(pagesRes.ok || pagesRes.status === 409 ? "GitHub Pages actif." : "GitHub Pages : à activer manuellement dans Settings → Pages.", pagesRes.ok || pagesRes.status === 409);
+
+      const baseUrl = "https://" + user + ".github.io/" + repoName;
+      const clientUrl = baseUrl + "/impression-client.html";
+      const comptoirUrl = baseUrl + "/impression-comptoir.html";
+
+      log("Déploiement terminé.");
+      status.innerHTML += '<div style="margin-top:1rem;padding:1rem;background:var(--accent-light);border-radius:8px;">' +
+        '<div style="font-size:0.75rem;font-weight:500;text-transform:uppercase;color:var(--accent);margin-bottom:0.8rem;">URLs de l\'établissement<' + '/div>' +
+        '<div style="font-size:0.8rem;margin-bottom:0.4rem;">Client : <a href="' + clientUrl + '" target="_blank" style="color:var(--accent)">' + clientUrl + '<' + '/a><' + '/div>' +
+        '<div style="font-size:0.8rem;">Comptoir : <a href="' + comptoirUrl + '" target="_blank" style="color:var(--accent)">' + comptoirUrl + '<' + '/a><' + '/div>' +
+        '<div style="font-size:0.75rem;color:var(--grey);margin-top:0.6rem;">Pages actives dans 1 à 2 minutes.<' + '/div><' + '/div>';
+
+      renderQRCodes(clientUrl, comptoirUrl);
+
+      btn.textContent = "Déployé !";
+      btn.style.background = "var(--accent)";
+
+    } catch(e) {
+      log("Erreur : " + (e && e.message || e), false);
+      btn.disabled = false;
+      btn.textContent = "↑ Déployer sur GitHub";
+    }
+  }
+
+  // ── Sauvegarde locale du formulaire (le token GitHub et la clé de service ne sont jamais stockés) ──
+  const SAVED_FIELDS = ['nom','prix-nb','prix-couleur','pin','printer','firebase-config','uploadcare-key','uploadcare-cdn','imgbb-key'];
+  const STORAGE_KEY = 'wizard-impression-brouillon';
+
+  function saveDraft() {
+    try {
+      const data = {};
+      SAVED_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) data[id] = el.value;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch(e) {}
+  }
+
+  function restoreDraft() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      SAVED_FIELDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && typeof data[id] === 'string' && data[id] !== '') el.value = data[id];
+      });
+    } catch(e) {}
+  }
+
+  function resetDraft() {
+    if (!confirm("Effacer les paramètres enregistrés sur cet ordinateur ?")) return;
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+    location.reload();
+  }
+
+  SAVED_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', saveDraft);
+  });
+  restoreDraft();
+</script>
+</body>
+</html>`;
