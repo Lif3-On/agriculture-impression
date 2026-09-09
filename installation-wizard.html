@@ -1348,7 +1348,8 @@ def convert_to_grayscale(filepath):
                 try: os.unlink(img_tmp.name)
                 except: pass
             doc.close()
-            tmp_path = os.path.join(tempfile.gettempdir(), f"nb_print_{os.getpid()}.pdf")
+            out_tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+            tmp_path = out_tmp.name; out_tmp.close()
             output.save(tmp_path); output.close()
             return tmp_path
         elif ext in [".jpg", ".jpeg", ".png"]:
@@ -1366,18 +1367,32 @@ def convert_to_grayscale(filepath):
         return filepath
     except: return filepath
 
+print_lock = threading.Lock()
+
 def print_file(filepath, color_type="nb"):
+    """Imprime un fichier et attend la fin du spooling.
+    Retourne (succes, fichier_de_conversion_a_supprimer_ou_None)."""
+    converted = None
     try:
         sumatra = get_sumatra()
-        if not sumatra: return False
-        actual = convert_to_grayscale(filepath) if color_type == "nb" else filepath
+        if not sumatra: return False, None
+        actual = filepath
+        if color_type == "nb":
+            actual = convert_to_grayscale(filepath)
+            if actual != filepath: converted = actual
         settings = "paper=A4,fit"
         if PRINTER_NAME:
             cmd = [sumatra, "-print-to", PRINTER_NAME, "-print-settings", settings, "-silent", actual]
         else:
             cmd = [sumatra, "-print-to-default", "-print-settings", settings, "-silent", actual]
-        subprocess.Popen(cmd); return True
-    except: return False
+        # Un seul document a la fois : deux instances simultanees de SumatraPDF
+        # se marchent dessus et une des deux impressions est perdue.
+        with print_lock:
+            res = subprocess.run(cmd, timeout=180)
+            time.sleep(2)
+        return res.returncode == 0, converted
+    except Exception:
+        return False, converted
 
 def handle_job(doc_snapshot):
     data = doc_snapshot.to_dict()
@@ -1396,9 +1411,12 @@ def handle_job(doc_snapshot):
         if not url: continue
         color_type = data.get("type", "nb")
         tmp = download_file(url, fn)
-        if tmp and print_file(tmp, color_type):
+        ok = False
+        if tmp:
             tmp_files.append(tmp)
-        else:
+            ok, converted = print_file(tmp, color_type)
+            if converted: tmp_files.append(converted)
+        if not ok:
             all_ok = False
     if all_ok:
         stats["total"] += 1; update_tray_title()
