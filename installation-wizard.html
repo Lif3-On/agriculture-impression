@@ -1340,9 +1340,11 @@ def convert_to_grayscale(filepath):
             for page in doc:
                 mat = fitz.Matrix(2, 2)
                 pix = page.get_pixmap(matrix=mat, colorspace=fitz.csGRAY)
-                img = PILImage.frombytes("L", [pix.width, pix.height], pix.samples).convert("RGB")
+                # Rester en niveaux de gris : passer en RGB triple le poids de
+                # l'image pour un rendu strictement identique.
+                img = PILImage.frombytes("L", [pix.width, pix.height], pix.samples)
                 img_tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
-                img.save(img_tmp.name, "PNG"); img_tmp.close()
+                img.save(img_tmp.name, "PNG", compress_level=6); img_tmp.close()
                 new_page = output.new_page(width=page.rect.width, height=page.rect.height)
                 new_page.insert_image(new_page.rect, filename=img_tmp.name)
                 try: os.unlink(img_tmp.name)
@@ -1350,7 +1352,9 @@ def convert_to_grayscale(filepath):
             doc.close()
             out_tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
             tmp_path = out_tmp.name; out_tmp.close()
-            output.save(tmp_path); output.close()
+            # Sans deflate le PDF pese une vingtaine de Mo par page : l'ouverture
+            # et le spooling prennent alors plusieurs secondes.
+            output.save(tmp_path, deflate=True, garbage=4); output.close()
             return tmp_path
         elif ext in [".jpg", ".jpeg", ".png"]:
             from PIL import Image as PILImage
